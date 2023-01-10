@@ -1,0 +1,6 @@
+bak/
+data/
+torch/
+output/
+
+*.out
