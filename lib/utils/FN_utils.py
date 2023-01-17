@@ -5,6 +5,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 import pdb
+from datetime import datetime as dt
 from .cython_bbox import bbox_overlaps, bbox_intersections
 
 from ..network import set_trainable_param
@@ -143,12 +144,11 @@ def get_optimizer(lr, mode, opts, vgg_features_var, rpn_features, hdn_features, 
 # general tools
 def get_model_name(opts):
 
-
-    model_name = opts['logs']['model_name']
+    model_name = opts['logs']['model_name']+'_'+dt.now().strftime('%m%d%H')
     if  opts['data'].get('dataset_version', None) is not None:
         model_name += '_' + opts['data']['dataset_version'] # + '_' + opts['model']['fusion']
-    if opts['data'].get('dataset_option', None) is not None:
-        model_name += '_' + opts['data']['dataset_option']
+#    if opts['data'].get('dataset_option', None) is not None:
+#        model_name += '_' + opts['data']['dataset_option']
 
     if opts['model']['MPS_iter'] < 0:
         print ('Using random MPS iterations to training')

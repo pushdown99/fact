@@ -1,5 +1,5 @@
 dir: data/visual_genome
-dataset_version: top_150_50_new
+dataset_version: T0116
 train:
     SCALES: [500, 550, 600, 600, 650, 700] # more probability to 600
     MAX_SIZE: 1000

@@ -273,7 +273,7 @@ class Factorizable_network(nn.Module):
         return (cls_prob_object, bbox_object, object_rois, reranked_score), \
                 (cls_prob_predicate, mat_phrase, region_rois.size(0)),
 
-    def evaluate(self, im_data, im_info, gt_objects, gt_relationships,
+    def evaluate (self, im_data, im_info, gt_objects, gt_relationships,
         thr=0.5, nms=-1., triplet_nms=-1., top_Ns = [100],
         use_gt_boxes=False):
         gt_objects = gt_objects[0]
@@ -300,17 +300,16 @@ class Factorizable_network(nn.Module):
                             reranked_score=reranked_score)
 
         gt_objects[:, :4] /= im_info[0][2]
-        rel_cnt, rel_correct_cnt, pred_correct_cnt = check_relationship_recall(gt_objects, gt_relationships,
-                                        subject_inds, object_inds, predicate_inds,
-                                        subject_boxes, object_boxes, top_Ns, thres=thr)
-        _, phrase_correct_cnt = check_phrase_recall(gt_objects, gt_relationships,
+        rel_cnt, rel_correct_cnt, pred_correct_cnt = check_relationship_recall (gt_objects, gt_relationships,
                                         subject_inds, object_inds, predicate_inds,
                                         subject_boxes, object_boxes, top_Ns, thres=thr)
 
-        result = {'objects': {
-                            'bbox': obj_boxes,
-                            'scores': obj_scores,
-                            'class': obj_cls,},
+        _, phrase_correct_cnt = check_phrase_recall (gt_objects, gt_relationships,
+                                        subject_inds, object_inds, predicate_inds,
+                                        subject_boxes, object_boxes, top_Ns, thres=thr)
+
+        result = {'objects': 
+                  {'bbox': obj_boxes, 'scores': obj_scores, 'class': obj_cls,},
                   'relationships': zip(sub_assignment, obj_assignment, predicate_inds, total_score),
                   'rel_recall': [float(v) / rel_cnt for v in rel_correct_cnt], 
                   'phr_recall': [float(v) / rel_cnt for v in phrase_correct_cnt], 

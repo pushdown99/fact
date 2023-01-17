@@ -1,6 +1,6 @@
 logs:
     dir_logs: output/
-    model_name: FN_VG-MSDN
+    model_name: FN_MSDN
 data:
     dataset: visual_genome
     opts: options/data.yaml

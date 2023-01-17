@@ -59,7 +59,8 @@ torch.backends.cudnn.benchmark = True
 
 parser = argparse.ArgumentParser ('Options for training Hierarchical Descriptive Model in pytorch')
 
-parser.add_argument ('--path_opt', default='options/FN_v4/map_v2.yaml', type=str, help='path to a yaml options file')
+#parser.add_argument ('--path_opt', default='options/FN_v4/map_v2.yaml', type=str, help='path to a yaml options file')
+parser.add_argument ('--path_opt', default='options/models/VG-MSDN.yaml', type=str, help='path to a yaml options file')
 parser.add_argument ('--dir_logs', type=str, help='dir logs')
 parser.add_argument ('--model_name', type=str, help='model name prefix')
 parser.add_argument ('--dataset_option', type=str, help='data split selection [small | fat | normal]')
@@ -288,21 +289,24 @@ def main ():
   #  network.weights_normal_init (net, dev=0.01)
   top_Ns = [50, 100]
 
+  ##################################################################################################
+  #
+  # Evaluate
+  #
   if args.evaluate:
     recall, result = model.module.engines.test (test_loader, model, top_Ns, nms=args.nms, triplet_nms=args.triplet_nms, use_gt_boxes=args.use_gt_boxes)
     print ('======= Testing Result =======')
     for idx, top_N in enumerate (top_Ns):
-        print ('Top-%d Recall'
-              '\t[Pred]: %2.3f%%'
-              '\t[Phr]: %2.3f%%'
-              '\t[Rel]: %2.3f%%' % (
-                top_N, float(recall[2][idx]) * 100,
-                float(recall[1][idx]) * 100,
-                float(recall[0][idx]) * 100))
+        print ('Top-%d Recall\t[Pred]: %2.3f%%\t[Phr]: %2.3f%%\t[Rel]: %2.3f%%' % (
+                top_N, float(recall[2][idx]) * 100, float(recall[1][idx]) * 100, float(recall[0][idx]) * 100))
     print ('============ Done ============')
     save_results (result, None, options['logs']['dir_logs'], is_testing=True)
     return
 
+  ##################################################################################################
+  #
+  # Train
+  #
   if args.evaluate_object:
     result = model.module.engines.test_object_detection (test_loader, model, nms=args.nms, use_gt_boxes=args.use_gt_boxes)
     print ('============ Done ============')
@@ -361,7 +365,7 @@ def main ():
 
         print ('\n[Result]')
         for idx, top_N in enumerate (top_Ns):
-          print ('\tTop-%d Recall' '\t[Pred]: %2.3f%% (best: %2.3f%%)' '\t[Phr]: %2.3f%% (best: %2.3f%%)' '\t[Rel]: %2.3f%% (best: %2.3f%%)' % (
+          print ('\tTop-%d Recall\t[Pred]: %2.3f%% (best: %2.3f%%)\t[Phr]: %2.3f%% (best: %2.3f%%)\t[Rel]: %2.3f%% (best: %2.3f%%)' % (
             top_N, float (recall[2][idx]) * 100, float (best_recall_pred[idx]) * 100,
             float (recall[1][idx]) * 100, float (best_recall_phrase[idx]) * 100,
             float (recall[0][idx]) * 100, float (best_recall[idx]) * 100 ))

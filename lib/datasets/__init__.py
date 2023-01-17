@@ -9,4 +9,5 @@
 
 from .VRD_loader import VRD
 from .visual_genome_loader import visual_genome
+from .nia_loader import nia
 from .sVG_loader import sVG

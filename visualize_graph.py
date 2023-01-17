@@ -22,27 +22,22 @@ import pdb
 
 from PIL import Image 
 
-from eval.evaluator import DenseCaptioningEvaluator
+#from eval.evaluator import DenseCaptioningEvaluator
 
 
 parser = argparse.ArgumentParser('Options for Meteor evaluation')
 
-parser.add_argument('--path_data_opts', default='options/data_VRD.yaml', type=str,
-                    help='path to a data file')
-parser.add_argument('--path_result', default='output/testing_result.pkl', type=str,
-                    help='path to the evaluation result file')
-parser.add_argument('--output_dir', default='output/graph_results/VRD', type=str,
-                    help='path to the evaluation result file')
-parser.add_argument('--dataset_option', default='small', type=str,
-                    help='path to the evaluation result file')
-parser.add_argument('--dataset', default='VRD', type=str,
-                    help='path to the evaluation result file')
+parser.add_argument('--path_data_opts', default='options/data.yaml', type=str, help='path to a data file')
+parser.add_argument('--path_result', default='output/testing_result.pkl', type=str, help='path to the evaluation result file')
+parser.add_argument('--output_dir', default='output/graph_results/nia', type=str, help='path to the evaluation result file')
+parser.add_argument('--dataset_option', default='normal', type=str, help='path to the evaluation result file')
+parser.add_argument('--dataset', default='visual_genome', type=str, help='path to the evaluation result file')
 
 args = parser.parse_args()
 
-if args.dataset is not 'visual_genome':
-    args.dataset_option = None
-
+#if args.dataset is not 'visual_genome':
+#    args.dataset_option = None
+ 
 # def prepare_rel_matrix(relationships, object_num):
 #     rel_mat = np.zeros()
 #     for rel in len(relationships):
@@ -81,6 +76,7 @@ def visualize():
         gt_relations = sample['relations'][0]
         gt_relations = zip(*np.where(gt_relations > 0))
         gt_to_pred = ground_predictions(objects['bbox'], gt_boxes, 0.5)
+        #print (sample['path'][0], result[i]['path']) #hyhwang
         assert sample['path'][0] == result[i]['path'], 'Image mismatch.'
         im = cv2.imread(osp.join(test_set._data_path, sample['path'][0]))
         image_name = sample['path'][0].split('/')[-1].split('.')[0]
@@ -89,7 +85,7 @@ def visualize():
                              gt_to_pred, gt_relations, test_set._object_classes, 
                              test_set._predicate_classes, filename=image_name)
 
-    print 'Done generating scene graphs.'
+    print ('Done generating scene graphs.')
 
 
 def draw_graph_pred(im, boxes, obj_ids, pred_relationships, gt_to_pred, 
@@ -123,7 +119,7 @@ def draw_graph_pred(im, boxes, obj_ids, pred_relationships, gt_to_pred,
     # rel_pred = pred_relationships[:5]  # uncomment to visualize top-5 relationships
     rel_pred = np.array(rel_pred)
     if rel_pred.size < 4:
-        print('Image Skipped.')
+        print('Image Skipped. {} size:{} pred_relationships:{} gt_relations:{}'.format(filename, rel_pred.size, len(list(pred_relationships)), len(list(gt_relations)))) #hyhwang?
         return
     # indices of predicted boxes
     pred_inds = rel_pred[:, :2].ravel()

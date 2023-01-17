@@ -22,7 +22,8 @@ def draw_scene_graph(labels, inds, rels, ind_to_class, ind_to_predicate, filenam
     """
     draw a graphviz graph of the scene graph topology
     """
-    viz_labels = labels[inds]
+    #print ('draw_scene_graph', type(labels), inds, type(inds)) #hyhwang
+    viz_labels = labels[inds.astype(int)] #hyhwang: astype(int)
     viz_rels = None
     if rels is not None:
         viz_rels = []
@@ -60,7 +61,7 @@ def draw_graph(labels, rels, ind_to_class, ind_to_predicate, filename):
 
     for rel in rels:
         edge_key = '%s_%s' % (rel[0], rel[1])
-        u.node(edge_key, label=ind_to_predicate[rel[2]], color='red')
+        u.node(edge_key, label=ind_to_predicate[rel[2].astype(int)], color='red') #hyhwang: astype
 
         u.edge(str(rel[0]), edge_key)
         u.edge(edge_key, str(rel[1]))
@@ -75,8 +76,8 @@ def viz_scene_graph(im, rois, labels, ind_to_class, ind_to_predicate, inds=None,
     """
     if inds is None:
         inds = np.arange(rois.shape[0])
-    viz_rois = rois[inds]
-    viz_labels = labels[inds]
+    viz_rois = rois[inds.astype(int)] #hyhwang
+    viz_labels = labels[inds.astype(int)]
     viz_rels = None
     if rels is not None:
         viz_rels = []
@@ -116,8 +117,8 @@ def _viz_scene_graph(im, rois, labels, ind_to_class, ind_to_predicate, rels, fil
     for i, rel in enumerate(rels):
         if rel[2] == 0: # ignore bachground
             continue
-        sub_box = rois[rel[0], :]
-        obj_box = rois[rel[1], :]
+        sub_box = rois[rel[0].astype(int), :] #hyhwang
+        obj_box = rois[rel[1].astype(int), :]
         obj_ctr = [obj_box[0], obj_box[1] - 2]
         sub_ctr = [sub_box[0], sub_box[1] - 2]
         line_ctr = [(sub_ctr[0] + obj_ctr[0]) / 2, (sub_ctr[1] + obj_ctr[1]) / 2]

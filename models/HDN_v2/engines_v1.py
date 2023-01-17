@@ -138,24 +138,28 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
         eval_result_t['path'] = sample['path'][0] # for visualization
         rel_cnt += total_cnt_t
         result.append (eval_result_t)
-        rel_cnt_correct += cnt_correct_t[0]
-        phrase_cnt_correct += cnt_correct_t[1]
-        pred_cnt_correct += cnt_correct_t[2]
+
+        # hyhwang
+        rel_cnt_correct       += cnt_correct_t[0]
+        phrase_cnt_correct    += cnt_correct_t[1]
+        pred_cnt_correct      += cnt_correct_t[2]
         total_region_rois_num += cnt_correct_t[3]
-        max_region_rois_num = cnt_correct_t[3] if cnt_correct_t[3] > max_region_rois_num else max_region_rois_num
+        max_region_rois_num    = cnt_correct_t[3] if cnt_correct_t[3] > max_region_rois_num else max_region_rois_num
+         
         batch_time.update (time.time () - end)
         end = time.time ()
+
         if (i + 1) % 500 == 0 and i > 0:
             print ('[Evaluation][%d/%d][%.2fs/img][avg: %d subgraphs, max: %d subgraphs]' % (i+1, len (loader), batch_time.avg, total_region_rois_num / float (i+1), max_region_rois_num))
             for idx, top_N in enumerate (top_Ns):
-                print ('\tTop-%d Recall:\t[Pred] %2.3f%%\t[Phr] %2.3f%%\t[Rel] %2.3f%%' % (
-                    top_N, pred_cnt_correct[idx] / float (rel_cnt) * 100,
+                print ('\tTop-%d Recall(HDN):\t[Pred] %2.3f%%\t[Phr] %2.3f%%\t[Rel] %2.3f%%\t[Cnt] %2.3f%%' % (
+                    top_N, 
+                    pred_cnt_correct[idx]   / float (rel_cnt) * 100,
                     phrase_cnt_correct[idx] / float (rel_cnt) * 100,
-                    rel_cnt_correct[idx] / float (rel_cnt) * 100))
+                    rel_cnt_correct[idx]    / float (rel_cnt) * 100, 
+                    float (rel_cnt)))
 
-    recall = [rel_cnt_correct / float (rel_cnt),
-              phrase_cnt_correct / float (rel_cnt),
-              pred_cnt_correct / float (rel_cnt)]
+    recall = [rel_cnt_correct / float (rel_cnt), phrase_cnt_correct / float (rel_cnt), pred_cnt_correct / float (rel_cnt)]
     print ('\n====== Done Testing ====')
 
     return recall, result

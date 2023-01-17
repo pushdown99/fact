@@ -17,31 +17,26 @@ import lib.datasets as datasets
 from lib.visualize_graph.visualize import viz_scene_graph, draw_scene_graph
 from lib.visualize_graph.vis_utils import check_recalled_graph
 
-
 import argparse
 import pdb
 
 from PIL import Image
 
+parser = argparse.ArgumentParser('options for Meteor evaluation')
 
-parser = argparse.ArgumentParser('Options for Meteor evaluation')
-
-parser.add_argument('--path_data_opts', default='options/data_VRD.yaml', type=str,
-                    help='path to a data file')
-parser.add_argument('--dataset_option', default='small', type=str,
-                    help='path to the evaluation result file')
-parser.add_argument('--dataset', default='VRD', type=str,
-                    help='path to the evaluation result file')
-parser.add_argument('--output_dir', default='output/scene_graph/VRD', type=str)
-parser.add_argument('--path_result', type=str,
-                    help='path to the evaluation result file')
-parser.add_argument('--topk', default=100, type=int, 
-                    help='topK detections are used. ')
+parser.add_argument('--path_data_opts', default='options/data.yaml', type=str, help='path to a data file')
+parser.add_argument('--dataset_option', default='normal', type=str, help='path to the evaluation result file')
+parser.add_argument('--dataset', default='visual_genome', type=str, help='path to the evaluation result file')
+parser.add_argument('--output_dir', default='output/scene_graph/nia', type=str)
+parser.add_argument('--path_result', type=str, help='path to the evaluation result file')
+parser.add_argument('--topk', default=100, type=int, help='topK detections are used. ')
 
 args = parser.parse_args()
+print (args)
 
-if args.dataset is not 'visual_genome':
-    args.dataset_option = None
+#hyhwang
+#if args.dataset is not 'visual_genome':
+#    args.dataset_option = None
 
 # def prepare_rel_matrix(relationships, object_num):
 #     rel_mat = np.zeros()
@@ -61,12 +56,8 @@ def visualize():
     print('Loading dataset...'),
     with open(args.path_data_opts, 'r') as handle:
         options = yaml.full_load(handle)
-    test_set = getattr(datasets, args.dataset)(options, 'test',
-                             dataset_option=args.dataset_option,
-                             use_region=True)
-    test_loader = torch.utils.data.DataLoader(test_set, batch_size=1,
-                                                shuffle=False, num_workers=4,
-                                                pin_memory=True,
+    test_set    = getattr(datasets, args.dataset)(options, 'test', dataset_option=args.dataset_option, use_region=True)
+    test_loader = torch.utils.data.DataLoader(test_set, batch_size=1, shuffle=False, num_workers=4, pin_memory=True,
                                                 collate_fn=getattr(datasets, args.dataset).collate)
     print('Done Loading')
 
@@ -86,7 +77,9 @@ def visualize():
 
     for i, sample in enumerate(test_loader): # (im_data, im_info, gt_objects, gt_relationships)
         gt_boxes = sample['objects'][0][:, :4] / sample['image_info'][0][2]
-        gt_cls = sample['objects'][0][:, 4].astype(np.int)
+        #hyhwang
+        #gt_cls = sample['objects'][0][:, 4].astype(np.int)
+        gt_cls = sample['objects'][0][:, 4].astype(int)
         gt_relations = sample['relations'][0]
         imagename = sample['path'][0].split('/')[-1].split('.')[0]
         filename = osp.join(args.output_dir, imagename)
@@ -131,7 +124,7 @@ def visualize():
             for s in low_recall_cases:
                 f.write(s+'\n')
 
-    print 'Done generating scene graphs.'
+    print ('Done generating scene graphs.')
 
 
 def draw_graph_pred(im, boxes, obj_ids, pred_relationships,
@@ -150,6 +143,7 @@ def draw_graph_pred(im, boxes, obj_ids, pred_relationships,
         gt_relations: gt_relationships
     """
     # indices of predicted boxes
+    print (pred_relationships)
     pred_inds = np.array(pred_relationships)[:, :2].ravel()
 
     # draw graph predictions

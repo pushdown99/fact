@@ -138,6 +138,7 @@ class visual_genome (data.Dataset):
 
   @staticmethod
   def collate (items):
+    #print ('[+] visual_genome_loader collate called # {}'.format (items))
     batch_item = {}
     for key in items[0]:
       if key == 'visual':
