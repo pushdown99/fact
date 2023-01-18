@@ -78,9 +78,9 @@ def main ():
     data_opts = yaml.full_load (f)
 
   if args.dataset == 'nia':
-    data_opts['dir']       = 'data/nia'
+    data_opts['dir']       = 'dataset'
   elif args.dataset == 'visual_genome':
-    data_opts['dir']       = 'data/visual_genome'
+    data_opts['dir']       = 'dataset'
 
   pprint (data_opts)
   print ('')
@@ -99,10 +99,10 @@ def main ():
     opts['scale'] = train_set.opts['test']['SCALES'][0]
 
   if args.dataset == 'nia':
-    opts['anchor_dir']     = 'data/nia'
+    opts['anchor_dir']     = 'dataset'
     opts['kmeans_anchors'] = False
   elif args.dataset == 'visual_genome':
-    opts['anchor_dir']     = 'data/visual_genome'
+    opts['anchor_dir']     = 'dataset'
     opts['kmeans_anchors'] = True
 
   pprint (opts)

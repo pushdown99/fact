@@ -6,6 +6,6 @@
 # --------------------------------------------------------
 from . import cython_nms
 from . import cython_bbox
-import blob
+#import blob
 import nms
 import timer

@@ -1,6 +1,8 @@
 bak/
-data/
 torch/
+dataset/images
+dataset/*.json
 output/
+docker/fact/
 
 *.out

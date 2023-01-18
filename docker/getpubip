@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#!/bin/bash
+if [ $# -lt 1 ]; then
+  ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+else
+  ip=$(getent hosts $1 | awk '{ print $1 }')
+fi
+echo $ip
+

@@ -1,7 +1,7 @@
 # Training Settings
 
 kmeans_anchors: False
-anchor_dir: data/nia # set
+anchor_dir: dataset # set
 
 object:
       train:
