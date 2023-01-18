@@ -4,5 +4,6 @@ dataset/images
 dataset/*.json
 output/
 docker/fact/
+images/
 
 *.out

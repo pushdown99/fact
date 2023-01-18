@@ -1,7 +1,6 @@
 #!/bin/bash
 
 name=fact
-cuda_dev=0
 port=8000 # pass-thuru port (for port forwarding)
 
 run()
@@ -24,8 +23,8 @@ run()
         sudo docker push pushdown99/fact
         ;;
     run)
-        host="${name}-G${cuda_dev}-P${port}"
-        sudo docker run -p ${port}:${port}/tcp --name ${host} -h ${host} --gpus "device=${DEV}" -it --mount type=bind,source=/home/hyhwang/repositories/dataset/NIA/download/origin,target=/fact/dataset/images pushdown99/fact bash
+        host="${name}-P${port}"
+        sudo docker run -p ${port}:${port}/tcp --name ${host} -h ${host} --ipc=host --mount type=bind,source=/home/hyhwang/repositories/model/fact/dataset,target=/fact/dataset --mount type=bind,source=/home/hyhwang/repositories/dataset/NIA/download/origin,target=/fact/images --mount type=bind,source=/home/hyhwang/repositories/model/fact/output,target=/fact/output -it --rm --runtime=nvidia pushdown99/fact bash
         ;;
     *)
         echo ""

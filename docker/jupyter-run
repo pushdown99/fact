@@ -1,0 +1,27 @@
+#!/bin/bash
+
+DEV="0"
+
+
+run()
+{
+	if [ "$#" -ge 2 ]; then
+		PORT=$2
+    else
+        echo ""
+        echo "Usage: jupyter-run {#port, default=8000}"
+        PORT="8000"
+	fi
+    HOST=`/bin/getpubip`
+    URL="http://${HOST}:${PORT}"
+    echo ""
+    echo "========================================"
+    echo "browser to ${URL}"
+    echo "========================================"
+    echo ""
+
+    jupyter notebook --allow-root --ip=0.0.0.0 --port=${PORT}
+}
+
+run "$@"
+
