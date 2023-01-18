@@ -40,4 +40,9 @@ WORKDIR /fact/lib
 
 RUN make clean all
 
+RUN pip install tqdm ipykernel nltk
+RUN python -m ipykernel install --user --name tf2 --display-name "tf2"
+
+RUN pip install gensim
+
 WORKDIR /fact

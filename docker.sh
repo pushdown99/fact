@@ -17,14 +17,15 @@ run()
         cp -r *.py docker/${name}/
         cp -r *.txt docker/${name}/
         cp -r *.sh docker/${name}/
-        sudo docker build -t pushdown99/fact docker
+        cp -r *.ipynb docker/${name}/
+        sudo docker build -t pushdown99/${name} docker
         ;;
     push)
-        sudo docker push pushdown99/fact
+        sudo docker push pushdown99/${name}
         ;;
     run)
         host="${name}-P${port}"
-        sudo docker run -p ${port}:${port}/tcp --name ${host} -h ${host} --ipc=host --mount type=bind,source=/home/hyhwang/repositories/model/fact/dataset,target=/fact/dataset --mount type=bind,source=/home/hyhwang/repositories/dataset/NIA/download/origin,target=/fact/images --mount type=bind,source=/home/hyhwang/repositories/model/fact/output,target=/fact/output -it --rm --runtime=nvidia pushdown99/fact bash
+        sudo docker run -p ${port}:${port}/tcp --name ${host} -h ${host} --ipc=host --mount type=bind,source=/home/hyhwang/repositories/model/${name}/dataset,target=/${name}/dataset --mount type=bind,source=/home/hyhwang/repositories/dataset/NIA/download/origin,target=/${name}/images --mount type=bind,source=/home/hyhwang/repositories/model/${name}/output,target=/${name}/output -it --rm --runtime=nvidia pushdown99/${name} bash
         ;;
     *)
         echo ""
