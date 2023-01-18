@@ -1,15 +1,15 @@
 logs:
     dir_logs: output/
-    model_name: FN_MSDN
+    model_name: msdn
 data:
-    dataset: visual_genome
+    dataset: nia
     opts: options/data.yaml
     dataset_option: small # (small | normal | fat)
     batch_size: 1
     use_region: False
 model:
     arch: FN_v4
-    rpn_opts: options/RPN/RPN_FN.yaml
+    rpn_opts: options/RPN/rpn.yaml
     # feature vector size
     dim_hr: 512
     dim_ho: 512

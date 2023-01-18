@@ -9,7 +9,9 @@ from lib.utils.timer import Timer
 from lib.utils.blob import im_list_to_blob
 from lib.rpn_msr.proposal_layer import proposal_layer as proposal_layer_py
 from lib.rpn_msr.anchor_target_layer import anchor_target_layer as anchor_target_layer_py
+from lib.rpn_msr.generate_anchors import generate_anchors 
 from lib.fast_rcnn.bbox_transform import bbox_transform_inv, clip_boxes
+from lib.fast_rcnn.nms_wrapper import nms
 
 from lib import network
 from lib.network import Conv2d, FC

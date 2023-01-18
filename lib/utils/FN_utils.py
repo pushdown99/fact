@@ -15,16 +15,16 @@ def group_features(net_, has_RPN=True, group_MPS=False):
     if has_RPN:
         vgg_features_fix = list(net_.rpn.features.parameters())[:8]
         vgg_features_var = list(net_.rpn.features.parameters())[8:]
-        vgg_feature_len = len(list(net_.rpn.features.parameters()))
-        rpn_feature_len = len(list(net_.rpn.parameters())) - vgg_feature_len
-        rpn_features = list(net_.rpn.parameters())[vgg_feature_len:]
-        hdn_features = list(net_.parameters())[(rpn_feature_len + vgg_feature_len):]
-        mps_features = list(net_.mps_list.parameters())
-        hdn_features = list(set(hdn_features) - set(mps_features))
+        vgg_feature_len  = len(list(net_.rpn.features.parameters()))
+        rpn_feature_len  = len(list(net_.rpn.parameters())) - vgg_feature_len
+        rpn_features     = list(net_.rpn.parameters())[vgg_feature_len:]
+        hdn_features     = list(net_.parameters())[(rpn_feature_len + vgg_feature_len):]
+        mps_features     = list(net_.mps_list.parameters())
+        hdn_features     = list(set(hdn_features) - set(mps_features))
         print ('vgg feature length:', vgg_feature_len)
         print ('rpn feature length:', rpn_feature_len)
-        print ('HDN feature length:', len(hdn_features))
-        print ('MPS feature length:', len(mps_features))
+        print ('hdn feature length:', len(hdn_features))
+        print ('mps feature length:', len(mps_features))
         return vgg_features_fix, vgg_features_var, rpn_features, hdn_features, mps_features
     else:
         raise NotImplementedError
@@ -33,7 +33,7 @@ def group_features(net_, has_RPN=True, group_MPS=False):
         vgg_feature_len = len(list(net_.features.parameters()))
         hdn_features = list(net_.parameters())[vgg_feature_len:]
         print ('vgg feature length:', vgg_feature_len)
-        print ('HDN feature length:', len(hdn_features))
+        print ('hdn feature length:', len(hdn_features))
         return vgg_features_fix, vgg_features_var, [], hdn_features
 
 
@@ -144,7 +144,7 @@ def get_optimizer(lr, mode, opts, vgg_features_var, rpn_features, hdn_features, 
 # general tools
 def get_model_name(opts):
 
-    model_name = opts['logs']['model_name']+'_'+dt.now().strftime('%m%d%H')
+    model_name = opts['logs']['model_name']+'_'+dt.now().strftime('%m%d%H%M')
     if  opts['data'].get('dataset_version', None) is not None:
         model_name += '_' + opts['data']['dataset_version'] # + '_' + opts['model']['fusion']
 #    if opts['data'].get('dataset_option', None) is not None:

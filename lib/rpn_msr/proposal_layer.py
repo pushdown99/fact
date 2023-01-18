@@ -37,13 +37,13 @@ def proposal_layer(rpn_cls_prob_reshape, rpn_bbox_pred, im_infos,
     # take after_nms_topN proposals after NMS
     # return the top proposals (-> RoIs top, scores top)
     # layer_params = yaml.full_load(self.param_str_)
-    batch_size = rpn_cls_prob_reshape.shape[0]
-    _anchors = generate_anchors(scales=anchor_scales, ratios=anchor_ratios)
-    _num_anchors = _anchors.shape[0]
-    pre_nms_topN = opts['num_box_pre_NMS']
+    batch_size    = rpn_cls_prob_reshape.shape[0]
+    _anchors      = generate_anchors(scales=anchor_scales, ratios=anchor_ratios)
+    _num_anchors  = _anchors.shape[0]
+    pre_nms_topN  = opts['num_box_pre_NMS']
     post_nms_topN = opts['num_box_post_NMS']
-    nms_thres = opts['nms_thres']
-    min_size = opts['min_size']
+    nms_thres     = opts['nms_thres']
+    min_size      = opts['min_size']
 
     blob = []
     
@@ -52,7 +52,7 @@ def proposal_layer(rpn_cls_prob_reshape, rpn_bbox_pred, im_infos,
         # the first set of _num_anchors channels are bg probs
         # the second set are the fg probs, which we want
         height = mappings[int(im_info[0])]
-        width = mappings[int(im_info[1])]
+        width  = mappings[int(im_info[1])]
         scores = rpn_cls_prob_reshape[i, _num_anchors:, :height, :width]
         bbox_deltas = rpn_bbox_pred[i, :, :height, :width]
 
@@ -66,7 +66,7 @@ def proposal_layer(rpn_cls_prob_reshape, rpn_bbox_pred, im_infos,
         shift_x = np.arange(0, width) * _feat_stride
         shift_y = np.arange(0, height) * _feat_stride
         shift_x, shift_y = np.meshgrid(shift_x, shift_y)
-        shifts = np.vstack((shift_x.ravel(), shift_y.ravel(),
+        shifts  = np.vstack((shift_x.ravel(), shift_y.ravel(),
                             shift_x.ravel(), shift_y.ravel())).transpose()
 
         # Enumerate all shifted anchors:

@@ -1,4 +1,4 @@
-dir: data/visual_genome
+dir: data/nia
 dataset_version: T0116
 train:
     SCALES: [500, 550, 600, 600, 650, 700] # more probability to 600

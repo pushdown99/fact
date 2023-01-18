@@ -1,7 +1,7 @@
 # Training Settings
 
-kmeans_anchors: True
-anchor_dir: data/visual_genome # set
+kmeans_anchors: False
+anchor_dir: data/nia # set
 
 object:
       train:

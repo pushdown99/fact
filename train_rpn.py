@@ -43,7 +43,7 @@ parser.add_argument ('--batch_size', type=int, default=1, help='#images per batc
 parser.add_argument ('--workers', type=int, default=4)
 
 # Environment Settings
-parser.add_argument ('--dataset', type=str, default='nia', help='The dataset to use (small | normal | fat)')
+parser.add_argument ('--dataset', type=str, default='nia', help='The dataset name')
 parser.add_argument ('--dataset_option', type=str, default='small', help='The dataset to use (small | normal | fat)')
 parser.add_argument ('--output_dir', type=str, default='./output/RPN', help='Location to output the model')
 parser.add_argument ('--model_name', type=str, default='rpn', help='model name for snapshot')
@@ -78,7 +78,7 @@ def main ():
     data_opts = yaml.full_load (f)
 
   if args.dataset == 'nia':
-    data_opts['dir']       = 'data/NIA'
+    data_opts['dir']       = 'data/nia'
   elif args.dataset == 'visual_genome':
     data_opts['dir']       = 'data/visual_genome'
 
@@ -88,7 +88,6 @@ def main ():
   args.model_name += '_'+dt.now().strftime('%m%d%H')+'_' + args.dataset
   if args.dataset == 'visual_genome':
     train_set = visual_genome (data_opts, 'train', dataset_option=args.dataset_option, batch_size=args.batch_size)
-
     test_set  = visual_genome (data_opts, 'test',  dataset_option=args.dataset_option, batch_size=args.batch_size)
   else:
     train_set = nia (data_opts, 'train', dataset_option=args.dataset_option, batch_size=args.batch_size)
@@ -100,11 +99,9 @@ def main ():
     opts['scale'] = train_set.opts['test']['SCALES'][0]
 
   if args.dataset == 'nia':
-    data_opts['dir']       = 'data/NIA'
-    opts['anchor_dir']     = 'data/NIA'
+    opts['anchor_dir']     = 'data/nia'
     opts['kmeans_anchors'] = False
   elif args.dataset == 'visual_genome':
-    data_opts['dir']       = 'data/visual_genome'
     opts['anchor_dir']     = 'data/visual_genome'
     opts['kmeans_anchors'] = True
 
@@ -283,20 +280,7 @@ def test (test_loader, target_net):
     im_info     = sample['image_info']
     gt_objects  = sample['objects']
 
-    #for o in gt_objects:
-    #  print (o.shape)
-    #  for d in o:
-    #    print ('bbox:', list(map(int, d[:4])))
-    #    print ('class:', int(d[4]))
-
     object_rois = target_net (im_data, im_info)[1]
-
-#    object_rois = object_rois.cpu().data.numpy()
-
-#      for d in o:
-#        print ('bbox:', list(map(int, d[:4])))
-#        print ('class:', int(d[4]))
-
 
     results.append (object_rois.cpu ().data.numpy ())
     box_num += object_rois.size (0)

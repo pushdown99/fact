@@ -90,13 +90,14 @@ def build_loss (rpn_cls_score_reshape, rpn_bbox_pred, rpn_data):
 
     _, predict = torch.max (rpn_cls_score.data, 1)
     error = torch.sum (torch.abs (predict - rpn_label.data))
-    #  try:
+
     if fg_cnt == 0:
         tp = 0.
         tf = tf = torch.sum (predict.eq (rpn_label.data))
     else:
         tp = torch.sum (predict[:fg_cnt].eq (rpn_label.data[:fg_cnt]))
         tf = torch.sum (predict[fg_cnt:].eq (rpn_label.data[fg_cnt:]))
+
     fg_cnt = fg_cnt
     bg_cnt = bg_cnt
     # print ('accuracy: %2.2f%%' % ((self.tp + self.tf) / float(fg_cnt + bg_cnt) * 100))

@@ -109,7 +109,7 @@ def train (loader, model, optimizer, exp_logger, epoch, train_all, print_freq=10
 
 def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
 
-    print ('========== Testing =======')
+    print ('========== Testing ==========')
     model.eval ()
 
     rel_cnt = 0.
@@ -126,17 +126,22 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
 
     for i, sample in enumerate (loader): # (im_data, im_info, gt_objects, gt_relationships)
         assert len (sample['visual']) == 1
-        input_visual = sample['visual'][0].cuda ()
-        gt_objects = sample['objects']
+        input_visual     = sample['visual'][0].cuda ()
+        image_name       = sample['path'][0] # hyhwang
+        gt_objects       = sample['objects']
         gt_relationships = sample['relations']
-        image_info = sample['image_info']
+        image_info       = sample['image_info']
         # Forward pass
+
+        # call (factorizable_network) evaluate, hyhwang
         total_cnt_t, cnt_correct_t, eval_result_t = model.module.evaluate (
             input_visual, image_info, gt_objects, gt_relationships,
             top_Ns = top_Ns, nms=nms, triplet_nms=triplet_nms,
-            use_gt_boxes=use_gt_boxes)
+            use_gt_boxes=use_gt_boxes, image_name=image_name)
+
         eval_result_t['path'] = sample['path'][0] # for visualization
         rel_cnt += total_cnt_t
+
         result.append (eval_result_t)
 
         # hyhwang
@@ -150,7 +155,9 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
         end = time.time ()
 
         if (i + 1) % 500 == 0 and i > 0:
-            print ('[Evaluation][%d/%d][%.2fs/img][avg: %d subgraphs, max: %d subgraphs]' % (i+1, len (loader), batch_time.avg, total_region_rois_num / float (i+1), max_region_rois_num))
+            print ('[Evaluation][%d/%d][%.2fs/img][avg: %d subgraphs, max: %d subgraphs]' % \
+              (i+1, len (loader), batch_time.avg, total_region_rois_num / float (i+1), max_region_rois_num))
+
             for idx, top_N in enumerate (top_Ns):
                 print ('\tTop-%d Recall(HDN):\t[Pred] %2.3f%%\t[Phr] %2.3f%%\t[Rel] %2.3f%%\t[Cnt] %2.3f%%' % (
                     top_N, 
@@ -166,15 +173,16 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
 
 
 def test_object_detection (loader, model, nms=-1., use_gt_boxes=False):
-    print ('========== Testing =======')
+    print ('========== Testing (object detection) ==========')
     model.eval ()
     object_classes = loader.dataset.object_classes
     result = {obj: {} for obj in object_classes}
 
     for i, sample in enumerate (loader): # (im_data, im_info, gt_objects, gt_relationships)
         input_visual = sample['visual'][0].cuda ()
-        gt_objects = sample['objects']
-        image_info = sample['image_info']
+        path         = sample['path'][0] # hyhwang
+        gt_objects   = sample['objects']
+        image_info   = sample['image_info']
         # Forward pass
         boxes = model.evaluate_object_detection (input_visual, image_info, gt_objects, nms=nms, use_gt_boxes=use_gt_boxes)
         filename = osp.splitext (sample['path'][0])[0] # for visualization

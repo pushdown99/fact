@@ -15,7 +15,7 @@ from ..utils.cython_bbox import bbox_overlaps, bbox_intersections
 
 # TODO: make fast_rcnn irrelevant
 # >>>> obsolete, because it depends on sth outside of this project
-from options.config_FN import cfg
+from options.config import cfg
 from ..fast_rcnn.bbox_transform import bbox_transform
 
 from ..fast_rcnn.nms_wrapper import nms

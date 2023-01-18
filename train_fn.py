@@ -8,6 +8,7 @@ import numpy.random as npr
 import argparse
 import yaml
 import click
+import platform
 from pprint import pprint
 # To restore the testing results for further analysis
 import pickle
@@ -59,11 +60,11 @@ torch.backends.cudnn.benchmark = True
 
 parser = argparse.ArgumentParser ('Options for training Hierarchical Descriptive Model in pytorch')
 
-#parser.add_argument ('--path_opt', default='options/FN_v4/map_v2.yaml', type=str, help='path to a yaml options file')
-parser.add_argument ('--path_opt', default='options/models/VG-MSDN.yaml', type=str, help='path to a yaml options file')
+parser.add_argument ('--path_opt', default='options/models/msdn.yaml', type=str, help='path to a yaml options file')
 parser.add_argument ('--dir_logs', type=str, help='dir logs')
 parser.add_argument ('--model_name', type=str, help='model name prefix')
-parser.add_argument ('--dataset_option', type=str, help='data split selection [small | fat | normal]')
+parser.add_argument ('--dataset', type=str, default='nia', help='The dataset name')
+parser.add_argument ('--dataset_option', default='small', type=str, help='data split selection [small | fat | normal]')
 parser.add_argument ('--workers', type=int, default=4, help='#idataloader workers')
 
 # training parameters
@@ -121,6 +122,19 @@ best_recall_pred   = [0., 0.]
 
 def main ():
   global args, is_best, best_recall, best_recall_pred, best_recall_phrase
+
+  info = {
+    'torch': torch.__version__,
+    'python': platform.python_version(),
+    'cuda': torch.version.cuda,
+    'cudnn': torch.backends.cudnn.version()
+  }
+  print ('[+] Information: {}'.format(info))
+
+  ##################################################################
+
+  print ('[+] Loading training set and testing set...')
+
   # To set the model name automatically
 
   # Set options
@@ -128,6 +142,7 @@ def main ():
     'logs': {
       'model_name': args.model_name,
       'dir_logs': args.dir_logs,
+      'operation': args.dir_logs,
     },
     'data':{
       'dataset_option': args.dataset_option,
@@ -151,24 +166,42 @@ def main ():
       with open (args.path_opt, 'r') as handle:
         options_yaml = yaml.full_load (handle)
 
+      if args.dataset == 'nia': 
+        options_yaml['dataset'] = 'nia'
+      elif args.dataset == 'visual_genome': 
+        options_yaml['dataset'] = 'visual_genome'
+
       options = utils.update_values (options, options_yaml)
 
       with open (options['data']['opts'], 'r') as f:
         data_opts = yaml.full_load (f)
-        options['data']['dataset_version'] = data_opts.get ('dataset_version', None)
-        options['opts'] = data_opts
 
-  print ('[+] arguments.'),
-  print ('--------------------------------------------------------------------')
-  pprint(vars(args))
-  print ()
-  print ('[+] options.'),
-  print ('--------------------------------------------------------------------')
-  pprint(options)
-  print ()
+      if args.dataset == 'nia':
+        data_opts['anchor_dir']     = 'data/nia'
+        data_opts['kmeans_anchors'] = False
+      elif args.dataset == 'visual_genome':
+        data_opts['anchor_dir']     = 'data/visual_genome'
+        data_opts['kmeans_anchors'] = True
+
+      options['data']['dataset_version'] = data_opts.get ('dataset_version', None)
+      options['opts'] = data_opts
 
   lr = options['optim']['lr']
   options = get_model_name (options)
+
+  if args.evaluate:
+    options['logs']['dir_logs'] = options['logs']['dir_logs']+'_eval'
+  else:
+    options['logs']['dir_logs'] = options['logs']['dir_logs']+'_train'
+
+  if args.rpn:
+    options['logs']['dir_logs'] = options['logs']['dir_logs']+'_rpn'
+
+  pprint(vars(args))
+  print ()
+  pprint(options)
+  print ()
+
   print ('[+] checkpoints are saved to: {}'.format (options['logs']['dir_logs']))
 
   # To set the random seed
