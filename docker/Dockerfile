@@ -20,9 +20,9 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
 RUN python -m pip install --upgrade pip
 RUN pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
-RUN pip install pyyaml numpy==1.23.1 timer ipython matplotlib climage opencv-python==4.6.0.66 easydict sympy click Cython
+RUN pip install --root-user-action=ignore pyyaml timer ipython matplotlib climage opencv-python==4.6.0.66 easydict sympy click Cython h5py tqdm ipykernel nltk gensim
 
-RUN pip install h5py
+RUN python -m ipykernel install --user --name tf2 --display-name "tf2"
 
 ADD fact /fact
 
@@ -36,13 +36,8 @@ RUN echo 'clear' >> /etc/bash.bashrc
 RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/motd' >> /etc/bash.bashrc
 RUN echo 'ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime' >> /etc/bash.bashrc
 
-WORKDIR /fact/lib
-
-RUN make clean all
-
-RUN pip install tqdm ipykernel nltk
-RUN python -m ipykernel install --user --name tf2 --display-name "tf2"
-
-RUN pip install gensim
+RUN pip install --root-user-action=ignore numpy==1.23.1 --upgrade
 
 WORKDIR /fact
+RUN ln -sf nia/images images
+

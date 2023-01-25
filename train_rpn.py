@@ -44,7 +44,7 @@ parser.add_argument ('--workers', type=int, default=4)
 
 # Environment Settings
 parser.add_argument ('--dataset', type=str, default='nia', help='The dataset name')
-parser.add_argument ('--dataset_option', type=str, default='small', help='The dataset to use (small | normal | fat)')
+parser.add_argument ('--dataset_option', type=str, default='normal', help='The dataset to use (small | normal | fat)')
 parser.add_argument ('--output_dir', type=str, default='./output/RPN', help='Location to output the model')
 parser.add_argument ('--model_name', type=str, default='rpn', help='model name for snapshot')
 parser.add_argument ('--resume', type=str, help='The model we resume')

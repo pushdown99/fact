@@ -64,7 +64,7 @@ parser.add_argument ('--path_opt', default='options/models/msdn.yaml', type=str,
 parser.add_argument ('--dir_logs', type=str, help='dir logs')
 parser.add_argument ('--model_name', type=str, help='model name prefix')
 parser.add_argument ('--dataset', type=str, default='nia', help='The dataset name')
-parser.add_argument ('--dataset_option', default='small', type=str, help='data split selection [small | fat | normal]')
+parser.add_argument ('--dataset_option', default='normal', type=str, help='data split selection [small | fat | normal]')
 parser.add_argument ('--workers', type=int, default=4, help='#idataloader workers')
 
 # training parameters

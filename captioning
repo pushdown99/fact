@@ -1,0 +1,12 @@
+tensorflow 
+colorama 
+easydict
+tqdm 
+ipykernel 
+nltk 
+ipdb 
+matplotlib 
+pandas 
+climage 
+fire
+numpy==1.23.1

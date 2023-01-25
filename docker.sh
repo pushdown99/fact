@@ -18,7 +18,6 @@ run()
         cp -r *.py docker/${name}/
         cp -r *.txt docker/${name}/
         cp -r *.sh docker/${name}/
-        cp -r *.ipynb docker/${name}/
         sudo docker build -t pushdown99/${name} docker
         ;;
     push)
@@ -26,7 +25,7 @@ run()
         ;;
     run)
         host="${name}-P${port}"
-        sudo docker run -p ${port}:${port}/tcp --name ${host} -h ${host} --ipc=host --mount type=bind,source=${work}/dataset,target=/${name}/dataset --mount type=bind,source=${work}/dataset/images,target=/${name}/images --mount type=bind,source=${work}/output,target=/${name}/output -it --rm --runtime=nvidia pushdown99/${name} bash
+        sudo docker run -p ${port}:${port}/tcp --name ${host} -h ${host} --ipc=host --gpus all --mount type=bind,source=${work}/dataset,target=/${name}/dataset --mount type=bind,source=${work}/output,target=/${name}/output --mount type=bind,source=${work}/nia,target=/${name}/nia -it --rm --runtime=nvidia pushdown99/${name} bash
         ;;
     *)
         echo ""

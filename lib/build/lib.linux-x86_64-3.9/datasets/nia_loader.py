@@ -124,8 +124,15 @@ class nia (data.Dataset):
     #pprint (_annotation['objects'])
     #print (np.shape(np.array ([obj['box']   for obj in _annotation['objects']], dtype=np.float) * im_scale))
 
-    gt_boxes_object[0:objects_len, 0:4] = np.array ([obj['box']   for obj in _annotation['objects']], dtype=np.float) * im_scale
-    gt_boxes_object[0:objects_len, 4]   = np.array ([obj['class'] for obj in _annotation['objects']])
+    y = np.array ([obj['box']   for obj in _annotation['objects']], dtype=np.float) * im_scale
+    #print (y.shape)
+    if y.shape[0] == 0:
+      print (index, item['path'], type(gt_boxes_object), np.shape(gt_boxes_object), im_scale)
+
+
+    gt_boxes_object[:, :4] = y[:, :4]
+    #gt_boxes_object[:, :4] = np.array ([obj['box']   for obj in _annotation['objects']], dtype=np.float) * im_scale
+    gt_boxes_object[:, 4]  = np.array ([obj['class'] for obj in _annotation['objects']])
 
     item['objects'] = gt_boxes_object
     if self._image_set == 'train': # calculate the RPN target
