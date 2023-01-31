@@ -13,3 +13,6 @@ sympy
 click 
 Cython 
 h5py
+psutil
+tabulate
+GPUtil

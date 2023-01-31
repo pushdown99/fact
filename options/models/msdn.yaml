@@ -4,7 +4,7 @@ logs:
 data:
     dataset: nia
     opts: options/data.yaml
-    dataset_option: small # (small | normal | fat)
+    dataset_option: normal # (small | normal | fat)
     batch_size: 1
     use_region: False
 model:

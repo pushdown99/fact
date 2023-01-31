@@ -1,9 +1,12 @@
 bak/
 torch/
 dataset/images
-dataset/*.json
+dataset/*json
 output/
 docker/fact/
 images/
+vg/
+nia/
 
 *.out
+dataset.*/

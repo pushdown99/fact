@@ -143,6 +143,10 @@ class nia (data.Dataset):
     for rel in _annotation['relationships']:
       gt_relationships[rel['sub_id'], rel['obj_id']] = rel['predicate']
     item['relations'] = gt_relationships
+    # hyhwang
+    if len (item['relations']) >= 10:
+      print (len(item['relations']), item['path'], gt_relationships)
+      
 
     if self.use_region:
       gt_boxes_region = np.zeros ((len (_annotation['regions']), self.max_size + 4)) # 4 for box and 40 for sentences

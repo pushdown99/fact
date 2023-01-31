@@ -33,6 +33,7 @@ run()
         echo ""
         echo "       build : build docker image to local repositories"
         echo "       push  : push to remote repositories (docker hub)"
+        echo "       run   : running docker image"
         echo ""
         return 1
         ;;

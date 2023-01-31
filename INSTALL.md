@@ -1,6 +1,6 @@
-#**********************
-#CUDA TORCH
-#**********************
+**********************
+CUDA TORCH
+**********************
 python -m venv torch
 source torch/bin/activate
 python -m pip install --upgrade pip

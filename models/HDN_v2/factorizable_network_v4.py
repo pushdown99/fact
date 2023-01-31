@@ -279,7 +279,8 @@ class Factorizable_network (nn.Module):
         gt_objects       = gt_objects[0]
         gt_relationships = gt_relationships[0]
 
-        print ('evaluate:', image_name, len(gt_relationships))
+        # hyhwang
+        # print ('evaluate:', image_name, len(gt_relationships))
 
         # hyhwang, 'use_gt_boxes'
         if use_gt_boxes: object_result, predicate_result = self.forward_eval (im_data, im_info, gt_objects=gt_objects)
@@ -301,16 +302,19 @@ class Factorizable_network (nn.Module):
 
         _, phrase_correct_cnt = check_phrase_recall (gt_objects, gt_relationships, subject_inds, object_inds, predicate_inds,
                                         subject_boxes, object_boxes, top_Ns, thres=thr)
-        if rel_cnt == 0:
-          rel_cnt = float (1)
-          print ('factorizable_network_v4: 0 =>', rel_cnt, 'please, check recall', image_name)
+        #if rel_cnt == 0:
+        #  rel_cnt = float (1)
+        #  print ('factorizable_network_v4: 0 =>', rel_cnt, 'please, check recall', image_name) # hyhwang, avoid div 0
+        #  rel_correct_cnt    = [v + float (1) for v in rel_correct_cnt]
+        #  phrase_correct_cnt = [v + float (1) for v in phrase_correct_cnt]
+        #  pred_correct_cnt   = [v + float (1) for v in pred_correct_cnt]
 
         result = {'objects': 
                   {'bbox': obj_boxes, 'scores': obj_scores, 'class': obj_cls,},
                   'relationships': zip (sub_assignment, obj_assignment, predicate_inds, total_score),
                   'rel_recall':  [float (v)  / rel_cnt for v in rel_correct_cnt], 
                   'phr_recall':  [float (v)  / rel_cnt for v in phrase_correct_cnt], 
-                  'pred_recall': [float (v) / rel_cnt for v in pred_correct_cnt],
+                  'pred_recall': [float (v)  / rel_cnt for v in pred_correct_cnt],
                  }
 
 

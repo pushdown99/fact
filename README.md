@@ -1,167 +1,151 @@
-# Factorizable Net (F-Net)
+# Scene Graph Generation
 
-This is pytorch implementation of our ECCV-2018 paper: [**Factorizable Net: An Efficient Subgraph-based Framework for Scene Graph Generation**](http://cvboy.com/publication/eccv2018_fnet/). This project is based on our previous work: [**Multi-level Scene Description Network**](https://github.com/yikang-li/MSDN). 
+This is pytorch implementation of our ECCV-2018 paper: [**Factorizable Net: An Efficient Subgraph-based Framework for Scene Graph Generation**](http://cvboy.com/publication/eccv2018_fnet/). <br> This project is based on our previous work: [**Multi-level Scene Description Network**](https://github.com/yikang-li/MSDN).
 
+
+model|description
+---|---
+RPN (region proposal network)| a fully convolutional network that simultaneously predicts object bounds and objectness scores at each position
+Factorizable Net (MSDN based)|scene graph generation model with RPN
+
+(reference github) https://github.com/yikang-li/FactorizableNet
+
+---
+1. [Progress](#Progress)
+2. [Installation](#Installation)
+3. [Dataset](#Dataset) 
+4. [Training](#Training)
+5. [Evaluate](#Evaluate)
+6. [Inference](#Inference)
+7. [Result](#Result)
+8. [Comparison](#Comparison)
+---
+ 
 ## Progress
 - [x] Guide for Project Setup
 - [x] Guide for Model Evaluation with pretrained model
 - [x] Guide for Model Training
 - [x] Uploading pretrained model and format-compatible datasets.
-- [x] Update the Model link for VG-DR-Net (We will upload a new model by Aug. 27). 
-- [x] Update the Dataset link for VG-DR-Net. 
-- [ ] A demonstration of our Factorizable Net 
-- [x] Migrate to PyTorch 1.0.1
-- [x] Multi-GPU support (beta version): one image per GPU
-
-## Updates
-- **Feb 26, 2019: Now we release our beta [Multi-GPU] version of Factorizable Net. Find the stable version at branch [0.3.1](https://github.com/yikang-li/FactorizableNet/tree/0.3.1)**
-- Aug 28, 2018: Bug fix for running the evaluation with "--use_gt_boxes". VG-DR-Net has some self-relations, e.g. A-relation-A. Previously, we assumed there is no such relation. This commit may influence the model performance on Scene Graph Generation. 
-
-## Project Settings
-
-1. Install the requirements (you can use pip or [Anaconda](https://www.continuum.io/downloads)):
-
-    ```
-    conda install pip pyyaml sympy h5py cython numpy scipy click
-    conda install -c menpo opencv3
-    conda install pytorch torchvision cudatoolkit=8.0 -c pytorch 
-    pip install easydict
-    ```
-
-2. Clone the Factorizable Net repository
-    ```bash
-    git clone git@github.com:yikang-li/FactorizableNet.git
-    ```
-
-3. Build the Cython modules for nms, roi pooling,roi align modules
-    ```bash
-    cd lib
-    make all
-    cd ..
-    ```
-5. Download the three datasets [**VG-MSDN**](https://drive.google.com/open?id=1WjetLwwH3CptxACrXnc1NCcccWUVDO76), [**VG-DR-Net**](https://drive.google.com/open?id=1JZecHzzwGj1hxnn77hPOlOvqpjavebcD), [**VRD**](https://drive.google.com/open?id=12oLtVSCEusG7tG4QwxeJEDsVhiE9gb2s) to ```F-Net/data```. And extract the folders with ```tar xzvf ${Dataset}.tgz```. We have converted the original annotations to ```json``` version. 
-
-6. Download [**Visual Genome images**](http://visualgenome.org/api/v0/api_home.html) and [**VRD**](http://imagenet.stanford.edu/internal/jcjohns/scene_graphs/sg_dataset.zip) images. 
-7. Link the image data folder to 	target folder: ```ln -s /path/to/images F-Net/data/${Dataset}/images```
-	- p.s. You can change the default data directory by modifying ```dir``` in ```options/data_xxx.json```.
-8. [optional] Download the pretrained RPN for [Visual Genome](https://drive.google.com/open?id=1W7PYyYvkROzC_GZwrgF0XS4fH6r2NyyV) and [VRD](https://drive.google.com/open?id=1OdzZKn5ZBIXFdxeOjCvjqNhFjobWnDS9). Place them into ```output/```.
-4. [optional] Download the pretrained Factorizable Net on [VG-MSDN](https://drive.google.com/file/d/1iKgYVLTUHi_VpmWrQJ6o1OMj3aGlrmDC/view), [VG-DR-Net](https://drive.google.com/open?id=1b-RoEeRWju1Mz4EESaagXOIWpUriBm_D) and [VG-VRD](https://drive.google.com/open?id=1n-8d4K7-PywVwuA90x50nnIW1TKyKHU4), and place them to ```output/trained_models/```
-
-## Project Organization
-There are several subfolders contained:
-
-- ```lib```: dataset Loader, NMS, ROI-Pooling, evaluation metrics, etc. are listed in the folder.
-- ```options```: configurations for ```Data```, ```RPN```, ```F-Net``` and ```hyperparameters```.
-- ```models```: model definitions for ```RPN```, ```Factorizable``` and related modules.
-- ```data```: containing VG-DR-Net (```svg/```), VG-MSDN (```visual_genome/```) and VRD (```VRD/```).
-- ```output```: storing the trained model, checkpoints and loggers.
-
-## Evaluation with our Pretrained Models
-Pretrained models on [VG-MSDN](https://drive.google.com/open?id=1iKgYVLTUHi_VpmWrQJ6o1OMj3aGlrmDC), [VG-DR-Net](https://drive.google.com/open?id=1b-RoEeRWju1Mz4EESaagXOIWpUriBm_D) and [VG-VRD](https://drive.google.com/open?id=1n-8d4K7-PywVwuA90x50nnIW1TKyKHU4) are provided. ```--evaluate``` is provided to enable evaluation mode. Additionally, we also provide ```--use_gt_boxes``` to fed the ground-truth object bounding boxes instead of RPN proposals. 
-
-- Evaluation on **VG-MSDN** with pretrained.
-Scene Graph Generation results:  Recall@50: ```12.984%```, Recall@100: ```16.506%```.
-
-```
-CUDA_VISIBLE_DEVICES=0 python train_FN.py --evaluate --dataset_option=normal \
-	--path_opt options/models/VG-MSDN.yaml \
-	--pretrained_model output/trained_models/Model-VG-MSDN.h5
-```
 
 
+## Installation
+### github (download)
+~~~console
+$ git clone https://github.com/pushdown99/fact.git
+$ cd fact
+~~~
 
-- Evaluation on **VG-VRD** with pretrained. :  Scene Graph Generation results:  Recall@50: ```19.453%```, Recall@100: ```24.640%```.
+### venv 
 
-```
-CUDA_VISIBLE_DEVICES=0 python train_FN.py --evaluate \
-	--path_opt options/models/VRD.yaml \
-	--pretrained_model output/trained_models/Model-VRD.h5
-```
+Read [INSTALL.md](INSTALL.md)
 
-- Evaluation on **VG-DR-Net** with pretrained.
-Scene Graph Generation results:  Recall@50: ```19.807%```, Recall@100: ```25.488%```.
+~~~console
+python -m venv torch
+source torch/bin/activate
+python -m pip install --upgrade pip
+pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
+#pip install colorama easydict opencv-python matplotlib
+pip install pyyaml numpy==1.23.1 timer ipython matplotlib climage opencv-python==4.6.0.66 easydict sympy click Cython h5py
+~~~
 
-```
-CUDA_VISIBLE_DEVICES=0 python train_FN.py --evaluate --dataset_option=normal \
-	--path_opt options/models/VG-DR-Net.yaml \
-	--pretrained_model output/trained_models/Model-VG-DR-Net.h5
-```
+### build RPN library (using cython for c/c++ code)
 
+~~~cosole
+$ cd lib
+$ make clean all
+$ cd ..
+~~~
+
+### docker
+
+for the runtime nvidia-docker environment installation <br>
+read [NVIDIA-DOCKER-INSTALL](NVIDIA-DOCKER-INSTALL.md)
+~~~console
+$ ./docker.sh run
+~~~
+or 
+~~~console
+$ sudo docker run --gpus all -it --rm --runtime=nvidias pushdown99/fact bash
+~~~
+
+## jupyter notebook
+
+~~~console
+$ ./jupyter.sh
+~~~
+or
+~~~console
+$ jupyter notebook --ip=0.0.0.0 --port=8000 --NotebookApp.iopub_data_rate_limit=1.0e10
+~~~
+---
+
+## Dataset
+The model has been trained on train/val NIA dataset. You can download the dataset here. Note that test images are not required for this code to work.
+
+dataset/train{prefix}.json
+dataset/val{prefix}.json
+
+dataset|prefix|ratio
+---|---|---
+normal||100%
+fat|_fat|50%
+small|_small|10%
+
+Each element in the train.json file has such a structure :
+"images/IMG_0061865_(...).jpg": ["relation1", "relation2", "relation3", "relation4", ..."relation10"], ...
+
+In same way in the val.json :
+"images/IMG_0061865_(...).jpg": ["relation1", "relation2", "relation3", "relation4", ..."relation10"], ...
+
+##Dependencies
+I have used the following versions for code work:
+
+code work|version
+---|---
+python|3.8.10
+torch|1.8.0+cu111
+cuda|11.1
+cudnn|8.0.5
+numpy|1.23.1
+
+#setting
+For my training session, I have get best results with this options file :
+
+model|option file
+---|---
+data| options/data.yaml
+RPN|options/RPN/rpn.yaml
+FN|options/models/msdn.yaml
+
+## Evaluation
+evaluate model with pretrained models
+
+~~~console
+python train_fn.py --evaluate --pretrained_model output/trained_models/model.h5
+~~~
 
 ## Training
-- Training Region Proposal Network (RPN). The **shared conv layers** are fixed. We also provide pretrained RPN on [Visual Genome](https://drive.google.com/open?id=1W7PYyYvkROzC_GZwrgF0XS4fH6r2NyyV) and [VRD](https://drive.google.com/open?id=1OdzZKn5ZBIXFdxeOjCvjqNhFjobWnDS9). 
+- Training Region Proposal Network (RPN). The **shared conv layers** are fixed. We also provide pretrained RPN on [[nia](https://drive.google.com/open?id=1W7PYyYvkROzC_GZwrgF0XS4fH6r2NyyV) and [visual genome](https://drive.google.com/open?id=1OdzZKn5ZBIXFdxeOjCvjqNhFjobWnDS9). 
 	
-	```
-	# Train RPN for VG-MSDN and VG-DR-Net
-	CUDA_VISIBLE_DEVICES=0 python train_rpn.py --dataset_option=normal 
-	
-	# Train RPN for VRD
-	CUDA_VISIBLE_DEVICES=0 python train_rpn_VRD.py 
-	
-	```
+	~~~console
+	# Train RPN 
+	$ source torch/bin/activate
+	$ python train_rpn.py --dataset_option=normal 
+	~~~
 
-- Training Factorizable Net: detailed training options are included in ```options/models/```.
+- Training Factorizable Net (MSDN based): detailed training options are included in ```options/models/```.
 
-	```
-	# Train F-Net on VG-MSDN:
-	CUDA_VISIBLE_DEVICES=0 python train_FN.py --dataset_option=normal \
-		--path_opt options/models/VG-MSDN.yaml --rpn output/RPN.h5
-		
-	# Train F-Net on VRD:
-	CUDA_VISIBLE_DEVICES=0 python train_FN.py  \
-		--path_opt options/models/VRD.yaml --rpn output/RPN_VRD.h5
-		
-	# Train F-Net on VG-DR-Net:
-	CUDA_VISIBLE_DEVICES=0 python train_FN.py --dataset_option=normal \
-		--path_opt options/models/VG-DR-Net.yaml --rpn output/RPN.h5
-	
-	```
+	~~~console
+	# Train F-Net on NIA-MSDN:
+	$ source torch/bin/activate
+	$ python train_fn.py
+	~~~
 	
 	```--rpn xxx.h5``` can be ignored in end-to-end training from pretrained **VGG16**. Sometime, unexpected and confusing errors appear. *Ignore it and restart to training.*
 	
 - For better results, we usually re-train the model with additional epochs by resuming the training from the checkpoint with ```--resume ckpt```:
 
-	```
-	# Resume F-Net training on VG-MSDN:
-	CUDA_VISIBLE_DEVICES=0 python train_FN.py --dataset_option=normal \
-		--path_opt options/models/VG-MSDN.yaml --resume ckpt --epochs 30
-	```
-
-## Acknowledgement
-
-We thank [longcw](https://github.com/longcw/faster_rcnn_pytorch) for his generous release of the [PyTorch Implementation of Faster R-CNN](https://github.com/longcw/faster_rcnn_pytorch). 
-
-
-## Reference
-
-If you find our project helpful, your citations are highly appreciated:
-
-@inproceedings{li2018fnet,  
-	author={Li, Yikang and Ouyang, Wanli and Bolei, Zhou and Jianping, Shi and Chao, Zhang and Wang, Xiaogang},  
-	title={Factorizable Net: An Efficient Subgraph-based Framework for Scene Graph Generation},  
-	booktitle = {ECCV},  
-	year      = {2018}  
-}
-
-We also have two papers regarding to scene graph generation / visual relationship detection:
-
-@inproceedings{li2017msdn,  
-	author={Li, Yikang and Ouyang, Wanli and Zhou, Bolei and Wang, Kun and Wang, Xiaogang},  
-	title={Scene graph generation from objects, phrases and region captions},  
-	booktitle = {ICCV},  
-	year      = {2017}  
-}
-
-@inproceedings{li2017vip,  
-	author={Li, Yikang and Ouyang, Wanli and Zhou, Bolei and Wang, Kun and Wang, Xiaogang},  
-	title={ViP-CNN: Visual Phrase Guided Convolutional Neural Network},  
-	booktitle = {CVPR},  
-	year      = {2017}  
-}
-
-
-## License:
-
-The pre-trained models and the Factorizable Network technique are released for uncommercial use.
-
-Contact [Yikang LI](http://www.cvboy.com/) if you have questions.
+	~~~console
+	# Resume F-Net training on NIA-MSDN:
+	$ python train_fn.py --resume ckpt --epochs 30
+	~~~
