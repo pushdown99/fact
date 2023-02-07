@@ -113,15 +113,15 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
     model.eval ()
 
     rel_cnt = 0.
-    rel_cnt_correct = np.zeros (2)
-    phrase_cnt_correct = np.zeros (2)
-    pred_cnt_correct = np.zeros (2)
+    rel_cnt_correct       = np.zeros (2)
+    phrase_cnt_correct    = np.zeros (2)
+    pred_cnt_correct      = np.zeros (2)
     total_region_rois_num = 0
-    max_region_rois_num = 0
-    result = []
+    max_region_rois_num   = 0
+    result                = []
 
     batch_time = network.AverageMeter ()
-    end = time.time ()
+    end        = time.time ()
 
 
     for i, sample in enumerate (loader): # (im_data, im_info, gt_objects, gt_relationships)
@@ -140,7 +140,7 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
             use_gt_boxes=use_gt_boxes, image_name=image_name)
 
         eval_result_t['path'] = sample['path'][0] # for visualization
-        rel_cnt += total_cnt_t
+        rel_cnt              += total_cnt_t
 
         result.append (eval_result_t)
 
@@ -159,7 +159,7 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
               (i+1, len (loader), batch_time.avg, total_region_rois_num / float (i+1), max_region_rois_num))
 
             for idx, top_N in enumerate (top_Ns):
-                print ('\tTop-%d Recall(HDN):\t[Pred] %2.3f%%\t[Phr] %2.3f%%\t[Rel] %2.3f%%\t[Cnt] %2.3f%%' % (
+                print ('\tTop-%d Recall(HDN):\t[PredCls] %2.3f%%\t[PhrCls %2.3f%%\t[SGCls] %2.3f%%\t[rel_cnt] %2.3f' % (
                     top_N, 
                     pred_cnt_correct[idx]   / float (rel_cnt) * 100,
                     phrase_cnt_correct[idx] / float (rel_cnt) * 100,

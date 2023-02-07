@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser ('Options for training RPN in pytorch')
 # training settings
 parser.add_argument ('--path_data_opts', type=str, default='options/data.yaml', help='Use options for ' )
 parser.add_argument ('--lr', type=float, default=0.01, help='To disable the Lanuage Model ')
-parser.add_argument ('--max_epoch', type=int, default=12, metavar='N', help='max iterations for training')
+parser.add_argument ('--max_epoch', type=int, default=30, metavar='N', help='max iterations for training')
 parser.add_argument ('--momentum', type=float, default=0.9, metavar='M', help='percentage of past parameters to store')
 parser.add_argument ('--log_interval', type=int, default=500, help='Interval for Logging')
 parser.add_argument ('--disable_clip_gradient', action='store_true', help='Whether to clip the gradient')

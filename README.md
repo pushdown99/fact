@@ -125,7 +125,7 @@ python train_fn.py --evaluate --pretrained_model output/trained_models/model.h5
 ~~~
 
 ## Training
-- Training Region Proposal Network (RPN). The **shared conv layers** are fixed. We also provide pretrained RPN on [[nia](https://drive.google.com/open?id=1W7PYyYvkROzC_GZwrgF0XS4fH6r2NyyV) and [visual genome](https://drive.google.com/open?id=1OdzZKn5ZBIXFdxeOjCvjqNhFjobWnDS9). 
+- Training Region Proposal Network (RPN). The **shared conv layers** are fixed. We also provide pretrained RPN and MSDN model on [nia](https://drive.google.com/drive/folders/1bdxKKJ9-53b7-Qp9ykX89zmKk55vSdAd?usp=sharing)
 	
 	~~~console
 	# Train RPN 

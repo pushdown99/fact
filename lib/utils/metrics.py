@@ -78,7 +78,7 @@ def check_phrase_recall (gt_objects, gt_relationships,
 
 def check_relationship_recall (gt_objects, gt_relationships, 
         subject_inds, object_inds, predicate_inds, 
-        subject_boxes, object_boxes, top_Ns, thres=0.4): # hyhwang 0.5 => 0.4
+        subject_boxes, object_boxes, top_Ns, thres=0.2): 
 
     # rearrange the ground truth
     gt_rel_sub_idx, gt_rel_obj_idx = np.where(gt_relationships > 0) # ground truth number
@@ -87,24 +87,21 @@ def check_relationship_recall (gt_objects, gt_relationships,
     gt_rel = gt_relationships[gt_rel_sub_idx, gt_rel_obj_idx]
 
     rel_cnt = len(gt_rel)
-    pred_correct_cnt = np.zeros(len(top_Ns))
+    pred_correct_cnt = np.zeros(len(top_Ns)) # top50, top100
     rel_correct_cnt  = np.zeros(len(top_Ns))
     max_topN = max(top_Ns)
 
-    # compute the overlap
+    # compute the overlap, 
     try:
-        sub_overlaps = bbox_overlaps(
-            np.ascontiguousarray(subject_boxes[:max_topN], dtype=np.float),
-            np.ascontiguousarray(gt_sub[:, :4], dtype=np.float))
-        obj_overlaps = bbox_overlaps(
-            np.ascontiguousarray(object_boxes[:max_topN], dtype=np.float),
-            np.ascontiguousarray(gt_obj[:, :4], dtype=np.float))
+        sub_overlaps = bbox_overlaps (np.ascontiguousarray (subject_boxes[:max_topN], dtype=np.float), np.ascontiguousarray (gt_sub[:, :4], dtype=np.float))
+        obj_overlaps = bbox_overlaps (np.ascontiguousarray (object_boxes [:max_topN], dtype=np.float), np.ascontiguousarray (gt_obj[:, :4], dtype=np.float))
+        #print (sub_overlaps.shape, obj_overlaps.shape)
     except:
         print('[Warning] No relationship remaining.')
         return rel_cnt, rel_correct_cnt, pred_correct_cnt
 
 
-    for idx, top_N in enumerate(top_Ns):
+    for idx, top_N in enumerate(top_Ns): # 50, 100
         for gt_id in range(rel_cnt):
             fg_candidate = np.where(np.logical_and(
                 sub_overlaps[:top_N, gt_id] >= thres, 
@@ -114,10 +111,8 @@ def check_relationship_recall (gt_objects, gt_relationships,
             for candidate_id in fg_candidate:
                 if predicate_inds[candidate_id] == gt_rel[gt_id]:
                     pred_correct_cnt[idx] += pred_flag
-                    pred_flag = 0 # only add once
-                    if subject_inds[candidate_id] == gt_sub[gt_id, 4] and \
-                            object_inds[candidate_id] == gt_obj[gt_id, 4]:
-                        
+                    pred_flag = 0 # only add once, hyhwang
+                    if subject_inds[candidate_id] == gt_sub[gt_id, 4] and object_inds[candidate_id] == gt_obj[gt_id, 4]:
                         rel_correct_cnt[idx] += 1 
                         break
     return rel_cnt, rel_correct_cnt, pred_correct_cnt

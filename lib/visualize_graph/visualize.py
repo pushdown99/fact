@@ -18,7 +18,7 @@ Utility for visualizing a scene graph
 
 
 
-def draw_scene_graph(labels, inds, rels, ind_to_class, ind_to_predicate, filename):
+def draw_scene_graph (labels, inds, rels, ind_to_class, ind_to_predicate, filename):
     """
     draw a graphviz graph of the scene graph topology
     """

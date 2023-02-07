@@ -94,6 +94,7 @@ parser.add_argument ('--optimize_MPS', action='store_true', help='Only optimize 
 parser.add_argument ('--start_epoch', default=0, type=int, help='manual epoch number (useful on restarts)')
 parser.add_argument ('--save_all_from', type=int, help='''delete the preceding checkpoint until an epoch,''' ''' then keep all (useful to save disk space)')''')
 parser.add_argument ('-e', '--evaluate', dest='evaluate', action='store_true', help='evaluate model on validation and test set')
+parser.add_argument ('--inference', dest='inference', action='store_true', help='infernce model on validation and sample')
 parser.add_argument ('--evaluate_object', dest='evaluate_object', action='store_true', help='Evaluate model with object detection')
 parser.add_argument ('--use_normal_anchors', action='store_true', help='Whether to use kmeans anchors')
 
@@ -330,10 +331,18 @@ def main ():
     recall, result = model.module.engines.test (test_loader, model, top_Ns, nms=args.nms, triplet_nms=args.triplet_nms, use_gt_boxes=args.use_gt_boxes)
     print ('======= Testing Result =======')
     for idx, top_N in enumerate (top_Ns):
-        print ('Top-%d Recall\t[Pred]: %2.3f%%\t[Phr]: %2.3f%%\t[Rel]: %2.3f%%' % (
+        print ('Top-%d Recall\t[PredCls]: %2.3f%%\t[PhrCls]: %2.3f%%\t[SGCls]: %2.3f%%' % (
                 top_N, float(recall[2][idx]) * 100, float(recall[1][idx]) * 100, float(recall[0][idx]) * 100))
     print ('============ Done ============')
     save_results (result, None, options['logs']['dir_logs'], is_testing=True)
+    return
+
+  ##################################################################################################
+  #
+  # Inference
+  #
+  if args.inference:
+    print ('======= Testing Result =======')
     return
 
   ##################################################################################################

@@ -22,7 +22,7 @@ RUN python -m pip install --upgrade pip
 RUN pip install torch==1.8.0+cu111 torchvision==0.9.0+cu111 torchaudio==0.8.0 -f https://download.pytorch.org/whl/torch_stable.html
 RUN pip install --root-user-action=ignore pyyaml timer ipython matplotlib climage opencv-python==4.6.0.66 easydict sympy click Cython h5py tqdm ipykernel nltk gensim
 
-RUN python -m ipykernel install --user --name tf2 --display-name "tf2"
+RUN python -m ipykernel install --user --name torch --display-name "torch"
 
 ADD fact /fact
 
@@ -36,6 +36,8 @@ RUN echo 'clear' >> /etc/bash.bashrc
 RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/motd' >> /etc/bash.bashrc
 RUN echo 'ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime' >> /etc/bash.bashrc
 
+RUN apt-get install -yq graphviz graphviz-dev
+RUN pip install gensim GPUtil tabulate graphviz
 RUN pip install --root-user-action=ignore numpy==1.23.1 --upgrade
 
 WORKDIR /fact

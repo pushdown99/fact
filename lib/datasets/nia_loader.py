@@ -95,6 +95,7 @@ class nia (data.Dataset):
   def __getitem__ (self, index):
     #print ('[+] nia_loader __getitem__ called # {}'.format (index))
     # Sample random scales to use for each image in this batch
+    #print ('__getitem__:', index, osp.join (self._data_path, self.annotations[index]['path']))
     item = {'rpn_targets': {}}
 
     target_scale = self.opts[self.cfg_key]['SCALES'][npr.randint (0, high=len (self.opts[self.cfg_key]['SCALES']))]

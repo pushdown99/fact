@@ -14,5 +14,7 @@ click
 Cython 
 h5py
 psutil
+gensim
 tabulate
 GPUtil
+graphviz

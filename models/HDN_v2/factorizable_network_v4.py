@@ -43,15 +43,16 @@ class Factorizable_network (nn.Module):
 
         super (Factorizable_network, self).__init__ ()
         # network settings
-        self.n_classes_obj = trainset.num_object_classes
+        self.n_classes_obj  = trainset.num_object_classes
         self.n_classes_pred = trainset.num_predicate_classes
-        self.MPS_iter = opts['MPS_iter']
+        self.MPS_iter       = opts['MPS_iter']
+
         # loss weight
-        ce_weights_obj = np.sqrt (trainset.inverse_weight_object)
-        ce_weights_obj[0] = 1.
-        ce_weights_pred = np.sqrt (trainset.inverse_weight_predicate)
-        ce_weights_pred[0] = 1.
-        self.object_loss_weight = ce_weights_obj if opts.get ('use_loss_weight', False) else None
+        ce_weights_obj      = np.sqrt (trainset.inverse_weight_object)
+        ce_weights_obj[0]   = 1.
+        ce_weights_pred     = np.sqrt (trainset.inverse_weight_predicate)
+        ce_weights_pred[0]  = 1.
+        self.object_loss_weight    = ce_weights_obj if opts.get ('use_loss_weight', False) else None
         self.predicate_loss_weight = ce_weights_pred if opts.get ('use_loss_weight', False) else None
         self.opts = opts
 
@@ -65,11 +66,11 @@ class Factorizable_network (nn.Module):
             assert len (trainset.opts['test']['SCALES']) == 1, "Currently only support single testing scale."
             self.rpn_opts['scale'] = trainset.opts['test']['SCALES'][0]
 
-        self.rpn = RPN (self.rpn_opts)
+        self.rpn  = RPN (self.rpn_opts)
         pool_size = self.opts.get ('pool_size', 7)
         self.roi_pool_object = ROIAlign ((pool_size, pool_size), 1.0/16, 0)
         self.roi_pool_region = ROIAlign ((pool_size, pool_size), 1.0/16, 0)
-        self.fc_obj = nn.Sequential (
+        self.fc_obj    = nn.Sequential (
                         nn.Linear (512 * pool_size * pool_size, opts['dim_ho']),
                         GroupDropout (p=opts['dropout'], inplace=True),
                         nn.ReLU (inplace=True),
@@ -273,7 +274,7 @@ class Factorizable_network (nn.Module):
         return (cls_prob_object, bbox_object, object_rois, reranked_score), \
                 (cls_prob_predicate, mat_phrase, region_rois.size (0)),
 
-    def evaluate (self, im_data, im_info, gt_objects, gt_relationships, thr=0.5, nms=-1., triplet_nms=-1., 
+    def evaluate (self, im_data, im_info, gt_objects, gt_relationships, thr=0.2, nms=-1., triplet_nms=-1., 
         top_Ns = [100], use_gt_boxes=False, image_name = ''):
 
         gt_objects       = gt_objects[0]
@@ -291,6 +292,7 @@ class Factorizable_network (nn.Module):
 
         region_rois_num = predicate_result[2]
 
+        # hyhwang
         # interpret the model output
         obj_boxes, obj_scores, obj_cls, subject_inds, object_inds, subject_boxes, object_boxes, predicate_inds, sub_assignment, obj_assignment, total_score = \
                 interpret_relationships (cls_prob_object, bbox_object, object_rois, cls_prob_predicate, mat_phrase, im_info,
@@ -299,6 +301,10 @@ class Factorizable_network (nn.Module):
         gt_objects[:, :4] /= im_info[0][2]
         rel_cnt, rel_correct_cnt, pred_correct_cnt = check_relationship_recall (gt_objects, gt_relationships,
                                         subject_inds, object_inds, predicate_inds, subject_boxes, object_boxes, top_Ns, thres=thr)
+
+        # hyhwang, printout
+        #if pred_correct_cnt.all() == 0:
+        #  print ('path:', image_name, 'thres:', thr, 'rel_cnt:', rel_cnt, 'rel_correct_cnt:', rel_correct_cnt, 'pred_correct_cnt:', pred_correct_cnt)
 
         _, phrase_correct_cnt = check_phrase_recall (gt_objects, gt_relationships, subject_inds, object_inds, predicate_inds,
                                         subject_boxes, object_boxes, top_Ns, thres=thr)
