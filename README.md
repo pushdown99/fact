@@ -149,3 +149,15 @@ python train_fn.py --evaluate --pretrained_model output/trained_models/model.h5
 	# Resume F-Net training on NIA-MSDN:
 	$ python train_fn.py --resume ckpt --epochs 30
 	~~~
+
+
+---
+## Result
+When you evaluate model with a cleansing dataset,
+then show this results.
+
+Recall@50|Estimate|Goal
+---|---|---
+PredCls|52.385 %|>=50.0 %
+SGCls|40.030 %|>= 10.0 %
+
