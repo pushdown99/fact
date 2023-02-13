@@ -36,8 +36,11 @@ RUN echo 'clear' >> /etc/bash.bashrc
 RUN echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/motd' >> /etc/bash.bashrc
 RUN echo 'ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime' >> /etc/bash.bashrc
 
+RUN apt-get update && apt-get install -y apt-transport-https
 RUN apt-get install -yq graphviz graphviz-dev
-RUN pip install gensim GPUtil tabulate graphviz
+RUN apt-get install -yq dnsutils
+RUN python -m pip install --upgrade pip
+RUN pip install --root-user-action=ignore gensim GPUtil tabulate graphviz
 RUN pip install --root-user-action=ignore numpy==1.23.1 --upgrade
 
 WORKDIR /fact

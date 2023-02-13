@@ -342,7 +342,11 @@ def main ():
   # Inference
   #
   if args.inference:
-    print ('======= Testing Result =======')
+    result = model.module.engines.test_object_detection (test_loader, model, nms=args.nms, use_gt_boxes=args.use_gt_boxes)
+    print ('============ Done ============')
+    path_dets = save_detections (result, None, options['logs']['dir_logs'], is_testing=True)
+    print ('Evaluating...')
+    python_eval (path_dets, osp.join (data_opts['dir'], 'object_xml'))
     return
 
   ##################################################################################################
