@@ -52,7 +52,7 @@ class Factorizable_network (nn.Module):
         ce_weights_obj[0]   = 1.
         ce_weights_pred     = np.sqrt (trainset.inverse_weight_predicate)
         ce_weights_pred[0]  = 1.
-        self.object_loss_weight    = ce_weights_obj if opts.get ('use_loss_weight', False) else None
+        self.object_loss_weight    = ce_weights_obj if opts.get  ('use_loss_weight', False) else None
         self.predicate_loss_weight = ce_weights_pred if opts.get ('use_loss_weight', False) else None
         self.opts = opts
 
@@ -84,15 +84,16 @@ class Factorizable_network (nn.Module):
                         nn.Conv2d (opts['dim_hr'], opts['dim_hr'], 3, stride=1, padding=1),
                         GroupDropout (p=opts['dropout'], inplace=True),)
 
-        self.fc_obj.apply (network.weight_init_fun_kaiming)
+        self.fc_obj.apply    (network.weight_init_fun_kaiming)
         self.fc_region.apply (network.weight_init_fun_kaiming)
+
         # network.weights_normal_init (self.fc_obj, 0.01)
         # network.weights_normal_init (self.fc_region, 0.01)
 
         # the hierarchical message passing structure
         print ('{} MPS modules are used.'.format (self.MPS_iter))
-        self.mps_list = nn.ModuleList (
-                [factor_updating_structure (opts) for i in range (self.MPS_iter)])
+        self.mps_list = nn.ModuleList ([factor_updating_structure (opts) for i in range (self.MPS_iter)])
+
         # self.mps_list.apply (network.weight_init_fun_kaiming)
         network.weights_normal_init (self.mps_list, 0.01)
 
@@ -100,40 +101,36 @@ class Factorizable_network (nn.Module):
         # self.phrase_inference.apply (network.weight_init_fun_kaiming)
         network.weights_normal_init (self.phrase_inference, 0.01)
 
-        self.score_obj = nn.Linear (opts['dim_ho'], self.n_classes_obj)
-        self.bbox_obj = nn.Linear (opts['dim_ho'], self.n_classes_obj * 4)
-        self.score_pred = nn.Linear (opts['dim_hp'], self.n_classes_pred)
+        self.score_obj     = nn.Linear (opts['dim_ho'],  self.n_classes_obj)
+        self.bbox_obj      = nn.Linear (opts['dim_ho'],   self.n_classes_obj * 4)
+        self.score_pred    = nn.Linear (opts['dim_hp'], self.n_classes_pred)
         self.learnable_nms = self.opts.get ('nms', 1.) > 0
-        self.nms = Dumplicate_Removal (opts)
+        self.nms           = Dumplicate_Removal (opts)
 
 
-        network.weights_normal_init (self.score_obj, 0.01)
-        network.weights_normal_init (self.bbox_obj, 0.005)
-        network.weights_normal_init (self.score_pred, 0.01)
+        network.weights_normal_init (self.score_obj,  0.01 )
+        network.weights_normal_init (self.bbox_obj,   0.005)
+        network.weights_normal_init (self.score_pred, 0.01 )
 
         self.engines = engines
-
-        
-
-
-
 
 
     def loss (self, losses):
         # loss weights are defined in option files.
         if self.learnable_nms:
-            return losses['loss_cls_obj'] * self.opts['cls_obj'] + \
-                    losses['loss_reg_obj'] * self.opts['reg_obj']+ \
-                    losses['loss_cls_rel'] * self.opts['cls_pred'] + \
-                    losses['loss_nms'] * self.opts.get ('nms', 1.)
+            return losses['loss_cls_obj'] * self.opts['cls_obj']  + \
+                   losses['loss_reg_obj'] * self.opts['reg_obj']  + \
+                   losses['loss_cls_rel'] * self.opts['cls_pred'] + \
+                   losses['loss_nms'] * self.opts.get ('nms', 1.)
 
         else:
-            return losses['loss_cls_obj'] * self.opts['cls_obj'] + \
-                    losses['loss_reg_obj'] * self.opts['reg_obj']+ \
-                    losses['loss_cls_rel'] * self.opts['cls_pred']
+            return losses['loss_cls_obj'] * self.opts['cls_obj']  + \
+                   losses['loss_reg_obj'] * self.opts['reg_obj']  + \
+                   losses['loss_cls_rel'] * self.opts['cls_pred']
 
 
     def forward (self, im_data, im_info, gt_objects=None, gt_relationships=None, rpn_anchor_targets_obj=None):
+        print ('forward')
 
         assert im_data.size (0) == 1, "Only support Batch Size equals 1"
         base_timer = Timer ()
@@ -197,14 +194,14 @@ class Factorizable_network (nn.Module):
             'loss_cls_obj': loss_cls_obj, 
             'loss_reg_obj': torch.zeros_like (loss_reg_obj) if torch.isnan (loss_reg_obj) else loss_reg_obj,
             'loss_cls_rel': loss_cls_rel,
-            'tf': tf,
-            'tp': tp,
-            'fg_cnt': fg_cnt,
-            'bg_cnt': bg_cnt,
-            'tp_pred': tp_pred,
-            'tf_pred': tf_pred,
-            'fg_cnt_pred': fg_cnt_pred,
-            'bg_cnt_pred': bg_cnt_pred,
+            'tf'          : tf,
+            'tp'          : tp,
+            'fg_cnt'      : fg_cnt,
+            'bg_cnt'      : bg_cnt,
+            'tp_pred'     : tp_pred,
+            'tf_pred'     : tf_pred,
+            'fg_cnt_pred' : fg_cnt_pred,
+            'bg_cnt_pred' : bg_cnt_pred,
         }
 
         # loss for NMS
@@ -337,8 +334,7 @@ class Factorizable_network (nn.Module):
         cls_prob_object, bbox_object, object_rois = object_result[:3]
 
         # interpret the model output
-        all_boxes = interpret_objects (cls_prob_object, bbox_object, object_rois, im_info,
-                            nms_thres=nms, use_gt_boxes=use_gt_boxes)
+        all_boxes = interpret_objects (cls_prob_object, bbox_object, object_rois, im_info, nms_thres=nms, use_gt_boxes=use_gt_boxes)
 
         return all_boxes
 

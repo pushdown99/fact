@@ -20,6 +20,7 @@ from lib import network
 from lib.utils.timer import Timer
 import lib.datasets as datasets
 from lib.utils.FN_utils import get_model_name, group_features, get_optimizer
+from lib.utils.image import Display
 import lib.utils.general_utils as utils
 import lib.utils.logger as logger
 import models
@@ -95,6 +96,7 @@ parser.add_argument ('--start_epoch', default=0, type=int, help='manual epoch nu
 parser.add_argument ('--save_all_from', type=int, help='''delete the preceding checkpoint until an epoch,''' ''' then keep all (useful to save disk space)')''')
 parser.add_argument ('-e', '--evaluate', dest='evaluate', action='store_true', help='evaluate model on validation and test set')
 parser.add_argument ('--inference', dest='inference', action='store_true', help='infernce model on validation and sample')
+parser.add_argument ('--image', type=str, help='path to image')
 parser.add_argument ('--evaluate_object', dest='evaluate_object', action='store_true', help='Evaluate model with object detection')
 parser.add_argument ('--use_normal_anchors', action='store_true', help='Whether to use kmeans anchors')
 
@@ -192,6 +194,8 @@ def main ():
 
   if args.evaluate:
     options['logs']['dir_logs'] = options['logs']['dir_logs']+'_eval'
+  elif args.inference:
+    options['logs']['dir_logs'] = options['logs']['dir_logs']+'_inf'
   else:
     options['logs']['dir_logs'] = options['logs']['dir_logs']+'_train'
 
@@ -212,20 +216,20 @@ def main ():
 
   print ('[+] loading training set and testing set...'),
   train_set = getattr (datasets, options['data']['dataset'])(data_opts, 'train',
-              dataset_option = options['data'].get ('dataset_option', None), use_region  = options['data'].get ('use_region', False),)
-  test_set = getattr (datasets, options['data']['dataset']) (data_opts, 'test',
+              dataset_option = options['data'].get ('dataset_option', None), use_region = options['data'].get ('use_region', False),)
+  test_set  = getattr (datasets, options['data']['dataset']) (data_opts, 'test',
               dataset_option = options['data'].get ('dataset_option', None), use_region = options['data'].get ('use_region', False))
   print ('[+] done.')
 
   # Model declaration
   model = getattr (models, options['model']['arch']) (train_set, opts = options['model'])
 
-  # pass enough message for anchor target generation
+  # Pass enough message for anchor target generation
   train_set._feat_stride = model.rpn._feat_stride
   train_set._rpn_opts    = model.rpn.opts
   print ('[+] done.')
 
-  # Experiment 1: Enable async data loading
+  # (Experiment) Enable async data loading
   train_loader = torch.utils.data.DataLoader (train_set, batch_size=options['data']['batch_size'],
               shuffle = True, num_workers = args.workers, #pin_memory = True, # hyhwang
               collate_fn = getattr (datasets, options['data']['dataset']).collate, drop_last = True,)
@@ -240,6 +244,7 @@ def main ():
   network.set_trainable (model, False)
   exp_logger = None
 
+  ##########################################################################
   # 1. only optimize MPS
   if args.optimize_MPS:
     print ('Optimize the MPS part ONLY.')
@@ -342,16 +347,25 @@ def main ():
   # Inference
   #
   if args.inference:
-    result = model.module.engines.test_object_detection (test_loader, model, nms=args.nms, use_gt_boxes=args.use_gt_boxes)
+    #sample = test_set.getsample('samples/VID_0010920_person(person).jpg')
+    path = args.image
+    sample = test_set.getsample(path)
+    obj_boxes, obj_scores, obj_cls, subject_inds, object_inds, subject_boxes, object_boxes, predicate_inds, sub_assignment, obj_assignment, total_score = \
+      model.module.engines.inference (model, sample)
+
     print ('============ Done ============')
-    path_dets = save_detections (result, None, options['logs']['dir_logs'], is_testing=True)
-    print ('Evaluating...')
-    python_eval (path_dets, osp.join (data_opts['dir'], 'object_xml'))
+    print (subject_inds[0], object_inds[0], predicate_inds[0], total_score[0])
+    sub  = subject_inds[0]
+    obj  = object_inds[0]
+    pred = predicate_inds[0]
+    print (test_set._object_classes[sub], test_set._predicate_classes[pred], test_set._object_classes[obj])
+    Display(path)
+
     return
 
   ##################################################################################################
   #
-  # Train
+  # Evaluate object
   #
   if args.evaluate_object:
     result = model.module.engines.test_object_detection (test_loader, model, nms=args.nms, use_gt_boxes=args.use_gt_boxes)

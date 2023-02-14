@@ -9,6 +9,8 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 import lib.network as network
 from lib.network import np_to_variable
+from .utils import nms_detections, build_loss_bbox, build_loss_cls, interpret_relationships, interpret_objects
+
 
 def train (loader, model, optimizer, exp_logger, epoch, train_all, print_freq=100, clip_gradient=True, iter_size=1):
 
@@ -105,10 +107,32 @@ def train (loader, model, optimizer, exp_logger, epoch, train_all, print_freq=10
     exp_logger.log_meters ('train', n=epoch)
 
 
+def inference (model, sample = None):
+    print ('========== Inference ==========')
+    model.eval ()
+
+    print (sample['path'])
+    im_data = sample['visual'][0].cuda ()
+    print (im_data.shape)
+    im_info = sample['image_info']
+    object_result, predicate_result = model.module.forward_eval (im_data, im_info,)
+    cls_prob_object, bbox_object, object_rois, reranked_score = object_result[:4]
+    cls_prob_predicate, mat_phrase = predicate_result[:2]
+    region_rois_num = predicate_result[2]
+
+    #obj_boxes, obj_scores, obj_cls, subject_inds, object_inds, subject_boxes, object_boxes, predicate_inds, sub_assignment, obj_assignment, total_score = \
+    #        interpret_relationships (cls_prob_object, bbox_object, object_rois, cls_prob_predicate, mat_phrase, im_info,
+    #                    nms=-1., top_N=1, use_gt_boxes=False, triplet_nms=-1., reranked_score=reranked_score)
+
+    return interpret_relationships (cls_prob_object, bbox_object, object_rois, cls_prob_predicate, mat_phrase, im_info, \
+             nms=-1., top_N=1, use_gt_boxes=False, triplet_nms=-1., reranked_score=reranked_score)
+
+    #print (subject_inds[0], object_inds[0], predicate_inds[0], total_score[0])
+    #print (subject_inds[1], object_inds[1], predicate_inds[1], total_score[1])
+    #print (subject_inds[2], object_inds[2], predicate_inds[2], total_score[2])
 
 
 def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
-
     print ('========== Testing ==========')
     model.eval ()
 
@@ -122,7 +146,6 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
 
     batch_time = network.AverageMeter ()
     end        = time.time ()
-
 
     for i, sample in enumerate (loader): # (im_data, im_info, gt_objects, gt_relationships)
         assert len (sample['visual']) == 1
