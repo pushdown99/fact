@@ -130,8 +130,6 @@ class Factorizable_network (nn.Module):
 
 
     def forward (self, im_data, im_info, gt_objects=None, gt_relationships=None, rpn_anchor_targets_obj=None):
-        print ('forward')
-
         assert im_data.size (0) == 1, "Only support Batch Size equals 1"
         base_timer = Timer ()
         mps_timer = Timer ()

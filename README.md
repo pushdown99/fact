@@ -117,20 +117,21 @@ data| options/data.yaml
 RPN|options/RPN/rpn.yaml
 FN|options/models/msdn.yaml
 
-## Evaluation
-evaluate model with pretrained models
-
-~~~console
-python train_fn.py --evaluate --pretrained_model output/trained_models/model.h5
-~~~
 
 ## Training
 - Training Region Proposal Network (RPN). The **shared conv layers** are fixed. We also provide pretrained RPN and MSDN model on [nia](https://drive.google.com/drive/folders/1bdxKKJ9-53b7-Qp9ykX89zmKk55vSdAd?usp=sharing)
+
+file|descriptions
+---|---
+fact.dataset.tare.gz|cleansing dataset
+rpn_best_86.h5|RPN pretrained model
+msdn_best_model.h5|MSDN/FN pretrained model
+testing_result.pkl|pre evaluated results for SG generation lately (pickle)
 	
 	~~~console
 	# Train RPN 
 	$ source torch/bin/activate
-	$ python train_rpn.py --dataset_option=normal 
+	$ python train_rpn.py 
 	~~~
 
 - Training Factorizable Net (MSDN based): detailed training options are included in ```options/models/```.
@@ -150,6 +151,29 @@ python train_fn.py --evaluate --pretrained_model output/trained_models/model.h5
 	$ python train_fn.py --resume ckpt --epochs 30
 	~~~
 
+---
+## Evaluation
+evaluate model with pretrained models
+
+~~~console
+python train_fn.py --evaluate --pretrained_model output/trained_models/model.h5
+~~~
+
+---
+## Inference
+To inference the model you need to follow the following steps :
+
+~~~console
+$ source torch/bin/activate
+$ nohup python run.py inf
+violin in table
+~~~
+
+![](samples/_IMG_0010366_violin(violin).jpg)
+
+original image:
+
+![](samples/IMG_0010366_violin(violin).jpg)
 
 ---
 ## Result
@@ -158,6 +182,6 @@ then show this results.
 
 Recall@50|Estimate|Goal
 ---|---|---
-PredCls|52.385 %|>=50.0 %
+PredCls|52.385 %|>= 50.0 %
 SGCls|40.030 %|>= 10.0 %
 
