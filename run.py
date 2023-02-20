@@ -16,6 +16,7 @@ from msdn import inference, evaluate
 
 class Config:
   data = 'nia'
+  sample = 'samples/IMG_0010366_violin(violin).jpg'
 
   def _parse(self, kwargs):
     state_dict = self._state_dict()
@@ -52,7 +53,7 @@ def eval (**kwargs):
 def inf (**kwargs):
   opt._parse(kwargs)
 
-  inference ('samples/IMG_0010366_violin(violin).jpg')
+  inference (opt.sample)
 
 #######################################################
 
