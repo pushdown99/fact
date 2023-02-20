@@ -1,6 +1,6 @@
 # Scene Graph Generation
 
-This is pytorch implementation of our ECCV-2018 paper: [**Factorizable Net: An Efficient Subgraph-based Framework for Scene Graph Generation**](http://cvboy.com/publication/eccv2018_fnet/). <br> This project is based on our previous work: [**Multi-level Scene Description Network**](https://github.com/yikang-li/MSDN).
+This is pytorch implementation of ECCV-2018 paper: [**Factorizable Net: An Efficient Subgraph-based Framework for Scene Graph Generation**](http://cvboy.com/publication/eccv2018_fnet/). <br> This project is based on previous work: [**Multi-level Scene Description Network**](https://github.com/yikang-li/MSDN).
 
 
 model|description
