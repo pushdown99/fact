@@ -18,3 +18,4 @@ gensim
 tabulate
 GPUtil
 graphviz
+jupyter
