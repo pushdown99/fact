@@ -9,6 +9,7 @@ docker/fact/
 images/
 vg/
 nia/
+info4/
 
 *.out
 dataset.*/

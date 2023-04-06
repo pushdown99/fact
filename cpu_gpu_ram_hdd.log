@@ -1,0 +1,93 @@
+-------------------- System Information  --------------------
+System   : Linux
+Node Name: multi-ai-v100
+Release  : 4.15.0-118-generic
+Version  : #119-Ubuntu SMP Tue Sep 8 12:30:01 UTC 2020
+Machine  : x86_64
+Processor: x86_64
+
+-------------------- CPU Info            --------------------
+Physical cores    : 8
+Total cores       : 8
+Max Frequency     : 0.00Mhz
+Min Frequency     : 0.00Mhz
+Current Frequency : 2200.14Mhz
+CPU Usage Per Core:
+--------------------------
+ - Core 0: 0.0%
+ - Core 1: 100.0%
+ - Core 2: 100.0%
+ - Core 3: 0.0%
+ - Core 4: 1.0%
+ - Core 5: 100.0%
+ - Core 6: 1.0%
+ - Core 7: 0.0%
+--------------------------
+Total CPU Usage  : 37.7%
+
+-------------------- Memory Information  --------------------
+Total     : 88.50GB
+Available : 68.19GB
+Used      : 20.16GB
+Percentage: 22.9%
+-------------------- SWAP                --------------------
+Total     : 0.00B
+Free      : 0.00B
+Used      : 0.00B
+Percentage: 0.0%
+
+-------------------- Disk Information    --------------------
+Partitions and Usage:
+* Device: /dev/xvda1
+  Mountpoint: /
+  File system type: ext4
+  Total Size: 48.96GB
+  Used      : 42.42GB
+  Free      : 4.03GB
+  Percentage: 91.3%
+* Device: /dev/mapper/VG-LV
+  Mountpoint: /home
+  File system type: ext4
+  Total Size: 3.84TB
+  Used      : 2.27TB
+  Free      : 1.37TB
+  Percentage: 62.4%
+--------------------------
+Total read  : 4.92TB
+Total write : 72.97TB
+
+-------------------- Network Information --------------------
+* Interface: lo
+  IP Address   : 127.0.0.1
+  Netmask      : 255.0.0.0
+  Broadcast IP : None
+* Interface: lo
+  MAC Address  : 00:00:00:00:00:00
+  Netmask      : None
+  Broadcast MAC: None
+* Interface: eth0
+  IP Address   : 10.41.93.165
+  Netmask      : 255.255.255.0
+  Broadcast IP : 10.41.93.255
+* Interface: eth0
+  MAC Address  : f2:20:cd:e0:68:70
+  Netmask      : None
+  Broadcast MAC: ff:ff:ff:ff:ff:ff
+* Interface: docker0
+  IP Address   : 172.17.0.1
+  Netmask      : 255.255.0.0
+  Broadcast IP : 172.17.255.255
+* Interface: docker0
+  MAC Address  : 02:42:4b:92:9e:af
+  Netmask      : None
+  Broadcast MAC: ff:ff:ff:ff:ff:ff
+--------------------------
+Total Bytes Sent    : 157.22GB
+Total Bytes Received: 3.50TB
+
+-------------------------------------------------------------- GPU Details --------------------------------------------------------------
+  id  name                  load    free memory    used memory    total memory    temperature    uuid
+----  --------------------  ------  -------------  -------------  --------------  -------------  ----------------------------------------
+   0  Tesla V100-PCIE-32GB  0.0%    32510.0MB      0.0MB          32510.0MB       33.0 °C        GPU-ed344efd-4cff-e806-bc5b-7f2a577c5b82
+
+

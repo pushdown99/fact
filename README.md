@@ -127,7 +127,7 @@ fact.dataset.tare.gz|cleansing dataset
 rpn_best_86.h5|RPN pretrained model
 msdn_best_model.h5|MSDN/FN pretrained model
 testing_result.pkl|pre evaluated results for SG generation lately (pickle)
-	
+
 	~~~console
 	# Train RPN 
 	$ source torch/bin/activate

@@ -1,0 +1,111 @@
+[+] Information: {'torch': '1.8.0+cu111', 'python': '3.9.16', 'cuda': '11.1', 'cudnn': 8005}
+[+] Loading training set and testing set...
+{'MPS_iter': None,
+ 'clip_gradient': True,
+ 'dataset': 'nia',
+ 'dataset_option': 'normal',
+ 'dir_logs': None,
+ 'dropout': None,
+ 'epochs': None,
+ 'eval_epochs': 1,
+ 'evaluate': True,
+ 'evaluate_object': False,
+ 'image': None,
+ 'inference': False,
+ 'infinite': False,
+ 'iter_size': 1,
+ 'learning_rate': None,
+ 'loss_weight': True,
+ 'model_name': None,
+ 'nms': -1.0,
+ 'optimize_MPS': False,
+ 'optimizer': None,
+ 'path_opt': 'options/models/msdn.yaml',
+ 'pretrained_model': 'pretrained/best_model.h5',
+ 'print_freq': 1000,
+ 'resume': None,
+ 'rpn': None,
+ 'save_all_from': None,
+ 'seed': 1,
+ 'start_epoch': 0,
+ 'step_size': None,
+ 'triplet_nms': 0.4,
+ 'use_gt_boxes': False,
+ 'use_normal_anchors': False,
+ 'warm_iters': -1,
+ 'workers': 4}
+
+{'data': {'batch_size': 1,
+          'dataset': 'nia',
+          'dataset_option': 'normal',
+          'dataset_version': 'T0116',
+          'opts': 'options/data.yaml',
+          'use_region': False},
+ 'dataset': 'nia',
+ 'logs': {'dir_logs': 'output/msdn_02212316_T0116_1_iters_SGD_eval',
+          'model_name': 'msdn'},
+ 'model': {'MPS_iter': 1,
+           'activation': 'relu',
+           'arch': 'FN_v4',
+           'bottleneck': True,
+           'cls_obj': 1.0,
+           'cls_pred': 2.0,
+           'dim_ho': 512,
+           'dim_hp': 512,
+           'dim_hr': 512,
+           'dim_mm': 256,
+           'dropout': 0.0,
+           'fusion': 'PI_v5',
+           'op': 'Sum',
+           'pool_size': 7,
+           'reg_obj': 0.5,
+           'rpn_opts': 'options/RPN/rpn.yaml',
+           'use_bias': True,
+           'use_loss_weight': True,
+           'use_shortcut': True},
+ 'optim': {'clip_gradient': True,
+           'epochs': 30,
+           'lr': 0.01,
+           'lr_decay': 0.1,
+           'lr_decay_epoch': 2,
+           'momentum': 0.9,
+           'nesterov': True,
+           'optimizer': 0,
+           'weight_decay': 1e-05},
+ 'opts': {'anchor_dir': 'data/nia',
+          'dataset_version': 'T0116',
+          'dir': 'dataset',
+          'kmeans_anchors': False,
+          'test': {'MAX_SIZE': 1000, 'SCALES': [600]},
+          'train': {'MAX_SIZE': 1000,
+                    'SCALES': [500, 550, 600, 600, 650, 700]}}}
+
+[+] checkpoints are saved to: output/msdn_02212316_T0116_1_iters_SGD_eval
+[+] loading training set and testing set...
+[+] done.
+[+] using normal anchors
+1 MPS modules are used.
+Bottleneck enabled.
+[+] done.
+vgg feature length: 26
+rpn feature length: 6
+hdn feature length: 37
+mps feature length: 12
+Loading pretrained model: pretrained/best_model.h5
+Model has 40337006 parameters
+========== Testing ==========
+[Evaluation][500/1806][0.43s/img][avg: 66 subgraphs, max: 87 subgraphs]
+	Top-50 Recall(HDN):	[PredCls] 50.863%	[PhrCls 42.364%	[SGCls] 39.044%	[rel_cnt] 753.000
+	Top-100 Recall(HDN):	[PredCls] 54.714%	[PhrCls 45.020%	[SGCls] 41.434%	[rel_cnt] 753.000
+[Evaluation][1000/1806][0.40s/img][avg: 66 subgraphs, max: 87 subgraphs]
+	Top-50 Recall(HDN):	[PredCls] 51.944%	[PhrCls 43.231%	[SGCls] 39.946%	[rel_cnt] 1492.000
+	Top-100 Recall(HDN):	[PredCls] 56.568%	[PhrCls 46.247%	[SGCls] 42.560%	[rel_cnt] 1492.000
+[Evaluation][1500/1806][0.38s/img][avg: 66 subgraphs, max: 87 subgraphs]
+	Top-50 Recall(HDN):	[PredCls] 52.119%	[PhrCls 42.967%	[SGCls] 40.216%	[rel_cnt] 2218.000
+	Top-100 Recall(HDN):	[PredCls] 56.267%	[PhrCls 45.762%	[SGCls] 42.696%	[rel_cnt] 2218.000
+
+====== Done Testing ====
+======= Testing Result =======
+Top-50 Recall	[PredCls]: 52.047%	[PhrCls]: 42.884%	[SGCls]: 40.030%
+Top-100 Recall	[PredCls]: 56.215%	[PhrCls]: 45.888%	[SGCls]: 42.621%
+============ Done ============

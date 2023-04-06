@@ -44,5 +44,5 @@ RUN pip install --root-user-action=ignore gensim GPUtil tabulate graphviz jupyte
 RUN pip install --root-user-action=ignore numpy==1.23.1 --upgrade
 
 WORKDIR /fact
-RUN ln -sf nia/images images
+RUN ln -sf /fact/images /fact/dataset/images
 
