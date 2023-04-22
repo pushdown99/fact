@@ -8,7 +8,8 @@ import numpy.random as npr
 import argparse
 import yaml
 import click
-import platform
+import sys, platform
+import datetime
 from pprint import pprint
 # To restore the testing results for further analysis
 import pickle
@@ -469,5 +470,42 @@ def make_meters ():
 
 ###################################################################################################
 
+def current ():
+  return  datetime.datetime.now()
+
+def line1_80 ():
+  return '--------------------------------------------------------------------------------'
+
+def line2_80 ():
+  return '================================================================================'
+
+def start (argv):
+  t = time.process_time()
+
+  command = list()
+  command.append ('python')
+  command += argv
+
+  print (current(), line1_80())
+  print (current(), '[Run] $', ' '.join(command))
+  print (current(), line1_80())
+
+  return t
+
+def stop (t):
+  print ('')
+  print (current(), line1_80())
+  print (current(), '[End]')
+  print (current(), line1_80())
+
+  elapsed = time.process_time() - t
+  print ('')
+  print ('Total elapsed: {:.2f} sec'.format(elapsed))
+  print ('')
+
 if __name__ == '__main__':
-    main ()
+  t = start (sys.argv)
+
+  main ()
+
+  stop (t)

@@ -92,9 +92,33 @@ class nia (data.Dataset):
     self._feat_stride = None
     self._rpn_opts = None
 
+  def getsample (self, path=''):
+    item = {'rpn_targets': {}}
+
+    target_scale = self.opts[self.cfg_key]['SCALES'][npr.randint (0, high=len (self.opts[self.cfg_key]['SCALES']))]
+    img = cv2.imread (path)
+    img_original_shape = img.shape
+    item['path']= path
+    img, im_scale = self._image_resize (img, target_scale, self.opts[self.cfg_key]['MAX_SIZE'])
+    # restore the [image_height, image_width, scale_factor, max_size]
+    item['image_info'] = np.array ([img.shape[0], img.shape[1], im_scale,
+          img_original_shape[0], img_original_shape[1]], dtype=np.float)
+    item['visual'] = Image.fromarray (img)
+
+    if self.transform is not None:
+      item['visual']  = self.transform (item['visual'])
+
+    item['regions']   = None
+    item['objects']   = None
+    item['relations'] = None
+
+    return self.collate([item])
+
+
   def __getitem__ (self, index):
     #print ('[+] nia_loader __getitem__ called # {}'.format (index))
     # Sample random scales to use for each image in this batch
+    #print ('__getitem__:', index, osp.join (self._data_path, self.annotations[index]['path']))
     item = {'rpn_targets': {}}
 
     target_scale = self.opts[self.cfg_key]['SCALES'][npr.randint (0, high=len (self.opts[self.cfg_key]['SCALES']))]
@@ -143,6 +167,10 @@ class nia (data.Dataset):
     for rel in _annotation['relationships']:
       gt_relationships[rel['sub_id'], rel['obj_id']] = rel['predicate']
     item['relations'] = gt_relationships
+    # hyhwang
+    #if len (item['relations']) >= 10:
+    #  print (len(item['relations']), item['path'], gt_relationships)
+      
 
     if self.use_region:
       gt_boxes_region = np.zeros ((len (_annotation['regions']), self.max_size + 4)) # 4 for box and 40 for sentences
