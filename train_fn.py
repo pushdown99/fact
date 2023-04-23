@@ -208,19 +208,21 @@ def main ():
   pprint(options)
   print ()
 
-  print ('[+] checkpoints are saved to: {}'.format (options['logs']['dir_logs']))
+  print ()
+  print (line1_80())
+
+  print ('[+] Checkpoints are saved to: {}'.format (options['logs']['dir_logs']))
 
   # To set the random seed
   random.seed (args.seed)
   torch.manual_seed (args.seed + 1)
   torch.cuda.manual_seed (args.seed + 2)
 
-  print ('[+] loading training set and testing set...'),
+  print ('[+] Loading training set and testing set...'),
   train_set = getattr (datasets, options['data']['dataset'])(data_opts, 'train',
               dataset_option = options['data'].get ('dataset_option', None), use_region = options['data'].get ('use_region', False),)
   test_set  = getattr (datasets, options['data']['dataset']) (data_opts, 'test',
               dataset_option = options['data'].get ('dataset_option', None), use_region = options['data'].get ('use_region', False))
-  print ('[+] done.')
 
   # Model declaration
   model = getattr (models, options['model']['arch']) (train_set, opts = options['model'])
@@ -228,7 +230,6 @@ def main ():
   # Pass enough message for anchor target generation
   train_set._feat_stride = model.rpn._feat_stride
   train_set._rpn_opts    = model.rpn.opts
-  print ('[+] done.')
 
   # (Experiment) Enable async data loading
   train_loader = torch.utils.data.DataLoader (train_set, batch_size=options['data']['batch_size'],
@@ -248,16 +249,16 @@ def main ():
   ##########################################################################
   # 1. only optimize MPS
   if args.optimize_MPS:
-    print ('Optimize the MPS part ONLY.')
+    print ('[+] Optimize the MPS part ONLY.')
     assert args.pretrained_model, 'Please specify the [pretrained_model]'
-    print ('Loading pretrained model: {}'.format (args.pretrained_model))
+    print ('[+] Loading pretrained model: {}'.format (args.pretrained_model))
     network.load_net (args.pretrained_model, model)
     args.train_all = False
     optimizer = get_optimizer (lr, 3, options, vgg_features_var, rpn_features, hdn_features, mps_features)
 
   # 2. resume training
   elif args.resume is not None:
-    print ('Loading saved model: {}'.format (os.path.join (options['logs']['dir_logs'], args.resume)))
+    print ('[+] Loading saved model: {}'.format (os.path.join (options['logs']['dir_logs'], args.resume)))
     args.train_all = True
     optimizer = get_optimizer (lr, 2, options, vgg_features_var, rpn_features, hdn_features, mps_features)
     args.start_epoch, best_recall[0], exp_logger = load_checkpoint (model, optimizer,
@@ -280,14 +281,14 @@ def main ():
 
     # 3. If we have some initialization points
     if args.pretrained_model is not None:
-        print ('Loading pretrained model: {}'.format (args.pretrained_model))
+        print ('[+] Loading pretrained model: {}'.format (args.pretrained_model))
         args.train_all = True
         network.load_net (args.pretrained_model, model)
         optimizer = get_optimizer (lr, 2, options, vgg_features_var, rpn_features, hdn_features, mps_features)
 
     # 4. training with pretrained RPN
     elif args.rpn is not None:
-        print ('Loading pretrained RPN: {}'.format (args.rpn))
+        print ('[+] Loading pretrained RPN: {}'.format (args.rpn))
         args.train_all = False
         network.load_net (args.rpn, model.rpn)
         optimizer = get_optimizer (lr, 2, options, vgg_features_var, rpn_features, hdn_features, mps_features)
@@ -324,7 +325,7 @@ def main ():
     exp_logger.add_meters ('train', make_meters ())
     exp_logger.add_meters ('test', make_meters ())
     exp_logger.info['model_params'] = utils.params_count (model)
-    print ('Model has {} parameters'.format (exp_logger.info['model_params']))
+    print ('[+] Model has {} parameters'.format (exp_logger.info['model_params']))
 
   #  network.weights_normal_init (net, dev=0.01)
   top_Ns = [50, 100]
@@ -334,12 +335,29 @@ def main ():
   # Evaluate
   #
   if args.evaluate:
-    recall, result = model.module.engines.test (test_loader, model, top_Ns, nms=args.nms, triplet_nms=args.triplet_nms, use_gt_boxes=args.use_gt_boxes)
-    print ('======= Testing Result =======')
-    for idx, top_N in enumerate (top_Ns):
-        print ('Top-%d Recall\t[PredCls]: %2.3f%%\t[PhrCls]: %2.3f%%\t[SGCls]: %2.3f%%' % (
-                top_N, float(recall[2][idx]) * 100, float(recall[1][idx]) * 100, float(recall[0][idx]) * 100))
-    print ('============ Done ============')
+    recall, result = model.module.engines.test (test_loader, model, top_Ns, nms=args.nms, triplet_nms=args.triplet_nms, use_gt_boxes=args.use_gt_boxes, opt=options)
+
+#    print ()
+#    print (current(), '* Final PredCls, SGCls for K-Vision dataset')
+#    print (current(), line2_80())
+#    print (current(), '{:20s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}'.format('Recall (Top-N)', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls'))
+#    print (current(), line1_80())
+#    for idx, top_N in enumerate (top_Ns):
+#      print (current(), 'Top {:3d}, Recall      {:7d} {:7d} {:7d} {:7d} {:7.2f}% {:7.2f}% {:7.2f}%'.format(
+#        int   (top_N),
+#        int   (recall[0][idx]),
+#        int   (recall[1][idx]),
+#        int   (recall[2][idx]),
+#        int   (recall[3][idx]),
+#        float (recall[4][idx]) * 100,
+#        float (recall[5][idx]) * 100,
+#        float (recall[6][idx]) * 100))
+
+#    print ('======= Testing Result =======')
+#    for idx, top_N in enumerate (top_Ns):
+#        print ('Top-%d Recall\t[PredCls]: %2.3f%%\t[PhrCls]: %2.3f%%\t[SGCls]: %2.3f%%' % (
+#                top_N, float(recall[2][idx]) * 100, float(recall[1][idx]) * 100, float(recall[0][idx]) * 100))
+#    print ('============ Done ============')
     save_results (result, None, options['logs']['dir_logs'], is_testing=True)
     return
 
@@ -416,7 +434,7 @@ def main ():
       print ('[Learning Rate]\t{}'.format (optimizer.param_groups[0]['lr']))
       if (epoch + 1) % args.eval_epochs == 0:
         print ('\n============ Epoch {} ============'.format (epoch))
-        recall, result = model.module.engines.test (test_loader, model, top_Ns, nms=args.nms, triplet_nms=args.triplet_nms)
+        recall, result = model.module.engines.test (test_loader, model, top_Ns, nms=args.nms, triplet_nms=args.triplet_nms, opt=options)
 
         # save_results (result, epoch, options['logs']['dir_logs'], is_testing=False)
         is_best = (recall[0] > best_recall).all ()
@@ -476,8 +494,14 @@ def current ():
 def line1_80 ():
   return '--------------------------------------------------------------------------------'
 
+def line1_120 ():
+  return '------------------------------------------------------------------------------------------------------------------------'
+
 def line2_80 ():
   return '================================================================================'
+
+def line2_120 ():
+  return '========================================================================================================================'
 
 def start (argv):
   t = time.process_time()
@@ -489,6 +513,7 @@ def start (argv):
   print (current(), line1_80())
   print (current(), '[Run] $', ' '.join(command))
   print (current(), line1_80())
+  print ()
 
   return t
 

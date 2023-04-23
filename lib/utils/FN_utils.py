@@ -21,10 +21,10 @@ def group_features(net_, has_RPN=True, group_MPS=False):
         hdn_features     = list(net_.parameters())[(rpn_feature_len + vgg_feature_len):]
         mps_features     = list(net_.mps_list.parameters())
         hdn_features     = list(set(hdn_features) - set(mps_features))
-        print ('vgg feature length:', vgg_feature_len)
-        print ('rpn feature length:', rpn_feature_len)
-        print ('hdn feature length:', len(hdn_features))
-        print ('mps feature length:', len(mps_features))
+        print ('[-] VGG feature length:', vgg_feature_len)
+        print ('[-] RPN feature length:', rpn_feature_len)
+        print ('[-] HDN feature length:', len(hdn_features))
+        print ('[-] MPS feature length:', len(mps_features))
         return vgg_features_fix, vgg_features_var, rpn_features, hdn_features, mps_features
     else:
         raise NotImplementedError
@@ -32,8 +32,8 @@ def group_features(net_, has_RPN=True, group_MPS=False):
         vgg_features_var = list(net_.features.parameters())[8:]
         vgg_feature_len = len(list(net_.features.parameters()))
         hdn_features = list(net_.parameters())[vgg_feature_len:]
-        print ('vgg feature length:', vgg_feature_len)
-        print ('hdn feature length:', len(hdn_features))
+        print ('[-] VGG feature length:', vgg_feature_len)
+        print ('[-] HDN feature length:', len(hdn_features))
         return vgg_features_fix, vgg_features_var, [], hdn_features
 
 

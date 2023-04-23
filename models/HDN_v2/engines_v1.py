@@ -1,8 +1,13 @@
 import pdb
 import os.path as osp
 import time
+import json
+import codecs
 import numpy as np
+from os.path import join, basename
 
+from tqdm import tqdm
+import datetime
 import torch
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence
@@ -11,6 +16,20 @@ import lib.network as network
 from lib.network import np_to_variable
 from .utils import nms_detections, build_loss_bbox, build_loss_cls, interpret_relationships, interpret_objects
 
+def current ():
+    return  datetime.datetime.now()
+
+def line1_80 ():
+    return '--------------------------------------------------------------------------------'
+
+def line1_120 ():
+    return '------------------------------------------------------------------------------------------------------------------------'
+
+def line2_80 ():
+    return '================================================================================'
+
+def line2_120 ():
+    return '========================================================================================================================'
 
 def train (loader, model, optimizer, exp_logger, epoch, train_all, print_freq=100, clip_gradient=True, iter_size=1):
 
@@ -131,9 +150,76 @@ def inference (model, sample = None):
     #print (subject_inds[1], object_inds[1], predicate_inds[1], total_score[1])
     #print (subject_inds[2], object_inds[2], predicate_inds[2], total_score[2])
 
+def print_sg (top_Ns, rel_cnt, pred_cnt_correct, phrase_cnt_correct, rel_cnt_correct, interim=False, image_name=None):
+  if interim == True:
+    print ()
+    print (current(), '{:20s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}     {}'.format('Recall (Top-N)', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls', 'Using latest image'))
+    print (current(), line1_120())
+    for idx, top_N in enumerate (top_Ns):
+      print (current(), 'Top {:3d}, Recall      {:7d} {:7d} {:7d} {:7d} {:7.2f}% {:7.2f}% {:7.2f}%    {}'.format(
+        int(top_N), 
+        int(rel_cnt), 
+        int(pred_cnt_correct[idx]), 
+        int(phrase_cnt_correct[idx]), 
+        int(rel_cnt_correct[idx]),
+        pred_cnt_correct[idx]   / float (rel_cnt) * 100,
+        phrase_cnt_correct[idx] / float (rel_cnt) * 100,
+        rel_cnt_correct[idx]    / float (rel_cnt) * 100,
+        image_name))
+  else:
+    print ()
+    print (current(), '* Final PredCls, SGCls for K-Vision dataset')
+    print (current(), line2_120())
+    print (current(), '{:20s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}'.format('Recall (Top-N)', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls'))
+    print (current(), line1_120())
+    for idx, top_N in enumerate (top_Ns):
+      print (current(), 'Top {:3d}, Recall      {:7d} {:7d} {:7d} {:7d} {:7.2f}% {:7.2f}% {:7.2f}%'.format(
+        int(top_N), 
+        int(rel_cnt), 
+        int(pred_cnt_correct[idx]), 
+        int(phrase_cnt_correct[idx]), 
+        int(rel_cnt_correct[idx]),
+        pred_cnt_correct[idx]   / float (rel_cnt) * 100,
+        phrase_cnt_correct[idx] / float (rel_cnt) * 100,
+        rel_cnt_correct[idx]    / float (rel_cnt) * 100))
 
-def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
-    print ('========== Testing ==========')
+def print_per_category (statistics, top_Ns):
+    print ('')
+    print (current(), '* Recall per Categories (K-Vision dataset)')
+    print (current(), line2_120())
+    print (current(), '{:20s} {:8s} {:8s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}'.format('Category', '#Dataset', 'Top-N', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls'))
+    print (current(), line1_120())
+    for k, v in statistics.items():
+      for idx, top_N in enumerate (top_Ns):
+        _rel_cnt            = v['rel_cnt'][idx]
+        _pred_cnt_correct   = v['pred_cnt_correct'][idx]
+        _phrase_cnt_correct = v['phrase_cnt_correct'][idx]
+        _rel_cnt_correct    = v['rel_cnt_correct'][idx]
+
+        print (current(), '{:20s} {:8d} {:8d} {:7d} {:7d} {:7d} {:7d} {:7.2f}% {:7.2f}% {:7.2f}%'.format(
+          k, 
+          v['total'], 
+          int(top_N), 
+          int(_rel_cnt), 
+          int(_pred_cnt_correct), 
+          int(_phrase_cnt_correct), 
+          int(_rel_cnt_correct),
+          _pred_cnt_correct / float (_rel_cnt) * 100,
+          _phrase_cnt_correct / float (_rel_cnt) * 100,
+          _rel_cnt_correct / float (_rel_cnt) * 100))
+
+def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False, opt=None):
+
+    statistics   = dict ()
+    print ('[+] dataset            :', opt['data']['dataset'], opt['data']['nick'])
+    nick = opt['data']['nick']
+    print ('[+] Loading statistics :', opt['data']['result'])
+    result = json.load(codecs.open(opt['data']['result'],  'r', 'utf-8-sig'))
+
+    print ()
+    print (current(), '[*] Evaluattion w/ K-vision dataset')
+    print (current(), line1_80())
+
     model.eval ()
 
     rel_cnt = 0.
@@ -142,12 +228,12 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
     pred_cnt_correct      = np.zeros (2)
     total_region_rois_num = 0
     max_region_rois_num   = 0
-    result                = []
+    res                   = []
 
     batch_time = network.AverageMeter ()
     end        = time.time ()
 
-    for i, sample in enumerate (loader): # (im_data, im_info, gt_objects, gt_relationships)
+    for i, sample in enumerate (tqdm(loader)): # (im_data, im_info, gt_objects, gt_relationships)
         assert len (sample['visual']) == 1
         input_visual     = sample['visual'][0].cuda ()
         image_name       = sample['path'][0] # hyhwang
@@ -155,6 +241,13 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
         gt_relationships = sample['relations']
         image_info       = sample['image_info']
         # Forward pass
+
+        if nick == 'vg':
+          id = basename(image_name)
+        else:
+          id = basename(image_name).split('_')[0]+'_'+basename(image_name).split('_')[1]
+        #print (image_name, id)
+        #print (id, result['evals'][id])
 
         # call (factorizable_network) evaluate, hyhwang
         total_cnt_t, cnt_correct_t, eval_result_t = model.module.evaluate (
@@ -165,7 +258,7 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
         eval_result_t['path'] = sample['path'][0] # for visualization
         rel_cnt              += total_cnt_t
 
-        result.append (eval_result_t)
+        res.append (eval_result_t)
 
         # hyhwang
         rel_cnt_correct       += cnt_correct_t[0]
@@ -174,25 +267,88 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False):
         total_region_rois_num += cnt_correct_t[3]
         max_region_rois_num    = cnt_correct_t[3] if cnt_correct_t[3] > max_region_rois_num else max_region_rois_num
          
+        for c in result ['evals'][id]:
+          for idx, top_N in enumerate (top_Ns):
+            if not c in statistics:
+              statistics [c] = dict ()
+              statistics [c]['total'] = result['stats'][c]['total']
+              statistics [c]['train'] = result['stats'][c]['train']
+              statistics [c]['rel_cnt']            = [0, 0]
+              statistics [c]['pred_cnt_correct']   = [0, 0]
+              statistics [c]['phrase_cnt_correct'] = [0, 0]
+              statistics [c]['rel_cnt_correct']    = [0, 0] 
+
+            statistics [c]['rel_cnt'][idx] += rel_cnt
+            statistics [c]['pred_cnt_correct'][idx]    +=  pred_cnt_correct [idx]
+            statistics [c]['phrase_cnt_correct'][idx]  +=  phrase_cnt_correct [idx]
+            statistics [c]['rel_cnt_correct'][idx]     +=  rel_cnt_correct [idx]
+
         batch_time.update (time.time () - end)
         end = time.time ()
 
-        if (i + 1) % 500 == 0 and i > 0:
-            print ('[Evaluation][%d/%d][%.2fs/img][avg: %d subgraphs, max: %d subgraphs]' % \
-              (i+1, len (loader), batch_time.avg, total_region_rois_num / float (i+1), max_region_rois_num))
+        # hyhwang
+        if (i + 1) % 15 == 0 and i > 0:
+            print_sg (top_Ns, rel_cnt, pred_cnt_correct, phrase_cnt_correct, rel_cnt_correct, True, image_name)
+#            print (current(), '{:20s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}     {}'.format('Recall (Top-N)', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls', 'Using latest image'))
+#            print (current(), line1_120())
+#            for idx, top_N in enumerate (top_Ns):
+#              print (current(), 'Top {:3d}, Recall      {:7d} {:7d} {:7d} {:7d} {:7.2f}% {:7.2f}% {:7.2f}%    {}'.format(
+#                int(top_N), 
+#                int(rel_cnt), 
+#                int(pred_cnt_correct[idx]), 
+#                int(phrase_cnt_correct[idx]), 
+#                int(rel_cnt_correct[idx]),
+#                pred_cnt_correct[idx]   / float (rel_cnt) * 100,
+#                phrase_cnt_correct[idx] / float (rel_cnt) * 100,
+#                rel_cnt_correct[idx]    / float (rel_cnt) * 100,
+#                image_name))
 
-            for idx, top_N in enumerate (top_Ns):
-                print ('\tTop-%d Recall(HDN):\t[PredCls] %2.3f%%\t[PhrCls %2.3f%%\t[SGCls] %2.3f%%\t[rel_cnt] %2.3f' % (
-                    top_N, 
-                    pred_cnt_correct[idx]   / float (rel_cnt) * 100,
-                    phrase_cnt_correct[idx] / float (rel_cnt) * 100,
-                    rel_cnt_correct[idx]    / float (rel_cnt) * 100, 
-                    float (rel_cnt)))
+#            print ('[Evaluation][%d/%d][%.2fs/img][avg: %d subgraphs, max: %d subgraphs]' % \
+#              (i+1, len (loader), batch_time.avg, total_region_rois_num / float (i+1), max_region_rois_num))
+#
+#            for idx, top_N in enumerate (top_Ns):
+#                print ('\tTop-%d Recall(HDN):\t[PredCls] %2.3f%%\t[PhrCls %2.3f%%\t[SGCls] %2.3f%%\t[rel_cnt] %2.3f' % (
+#                    top_N, 
+#                    pred_cnt_correct[idx]   / float (rel_cnt) * 100,
+#                    phrase_cnt_correct[idx] / float (rel_cnt) * 100,
+#                    rel_cnt_correct[idx]    / float (rel_cnt) * 100, 
+#                    float (rel_cnt)))
 
-    recall = [rel_cnt_correct / float (rel_cnt), phrase_cnt_correct / float (rel_cnt), pred_cnt_correct / float (rel_cnt)]
-    print ('\n====== Done Testing ====')
 
-    return recall, result
+    print_per_category (statistics, top_Ns)
+    print_sg (top_Ns, rel_cnt, pred_cnt_correct, phrase_cnt_correct, rel_cnt_correct)
+
+#    print ('')
+#    print (current(), '* Recall per Categories (K-Vision dataset)')
+#    print (current(), line2_120())
+#    print (current(), '{:20s} {:8s} {:8s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}'.format('Category', '#Dataset', 'Top-N', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls'))
+#    print (current(), line1_120())
+#    for k, v in statistics.items():
+#      for idx, top_N in enumerate (top_Ns):
+#        _rel_cnt            = v['rel_cnt'][idx]
+#        _pred_cnt_correct   = v['pred_cnt_correct'][idx]
+#        _phrase_cnt_correct = v['phrase_cnt_correct'][idx]
+#        _rel_cnt_correct    = v['rel_cnt_correct'][idx]
+#
+#        print (current(), '{:20s} {:8d} {:8d} {:7d} {:7d} {:7d} {:7d} {:7.2f}% {:7.2f}% {:7.2f}%'.format(
+#          k, 
+#          v['total'], 
+#          int(top_N), 
+#          int(_rel_cnt), 
+#          int(_pred_cnt_correct), 
+#          int(_phrase_cnt_correct), 
+#          int(_rel_cnt_correct),
+#          _pred_cnt_correct / float (_rel_cnt) * 100,
+#          _phrase_cnt_correct / float (_rel_cnt) * 100,
+#          _rel_cnt_correct / float (_rel_cnt) * 100))
+      
+    print (current(), line2_120())
+    
+    #recall = [rel_cnt_correct / float (rel_cnt), phrase_cnt_correct / float (rel_cnt), pred_cnt_correct / float (rel_cnt)]
+    recall = [[rel_cnt, rel_cnt], pred_cnt_correct, phrase_cnt_correct, rel_cnt_correct, pred_cnt_correct / float (rel_cnt), phrase_cnt_correct / float (rel_cnt), rel_cnt_correct / float (rel_cnt)]
+    print (current(), 'Done.')
+
+    return recall, res
 
 
 def test_object_detection (loader, model, nms=-1., use_gt_boxes=False):

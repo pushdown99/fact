@@ -35,7 +35,7 @@ parser.add_argument ('--path_data_opts', type=str, default='options/data.yaml', 
 parser.add_argument ('--lr', type=float, default=0.01, help='To disable the Lanuage Model ')
 parser.add_argument ('--max_epoch', type=int, default=30, metavar='N', help='max iterations for training')
 parser.add_argument ('--momentum', type=float, default=0.9, metavar='M', help='percentage of past parameters to store')
-parser.add_argument ('--log_interval', type=int, default=500, help='Interval for Logging')
+parser.add_argument ('--log_interval', type=int, default=50, help='Interval for Logging')
 parser.add_argument ('--disable_clip_gradient', action='store_true', help='Whether to clip the gradient')
 parser.add_argument ('--use_normal_anchors', action='store_true', help='Whether to use kmeans anchors')
 parser.add_argument ('--step_size', type=int, default=3, help='step to decay the learning rate')

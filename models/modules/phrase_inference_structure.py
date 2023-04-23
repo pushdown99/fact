@@ -66,7 +66,7 @@ class PI_v5(Basic_Phrase_Inference_Structure):
 								nn.Conv2d(opts['dim_hr'], opts['dim_mm'], kernel_size=1, bias=opts['use_bias']),
 								GroupDropout(p=opts['dropout'], inplace=True),)
 		if opts.get('bottleneck', False):
-			print('Bottleneck enabled.')
+			print('[+] Bottleneck enabled.')
 			self.predicate_feat_pre = nn.Sequential(
 								nn.ReLU(),
 								nn.Conv2d(opts['dim_mm'], opts['dim_mm'] // 2, kernel_size=1, bias=opts['use_bias']),
@@ -78,7 +78,7 @@ class PI_v5(Basic_Phrase_Inference_Structure):
 									opts['dim_hp'], bias=opts['use_bias']),
 								GroupDropout(p=opts['dropout'], inplace=True),)
 		else:
-			print('Bottleneck disabled.')
+			print('[+] Bottleneck disabled.')
 			self.predicate_feat_pre = nn.Sequential(
 								nn.ReLU(),)
 			self.predicate_feat_fc = nn.Sequential(

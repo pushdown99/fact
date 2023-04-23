@@ -91,7 +91,7 @@ class Factorizable_network (nn.Module):
         # network.weights_normal_init (self.fc_region, 0.01)
 
         # the hierarchical message passing structure
-        print ('{} MPS modules are used.'.format (self.MPS_iter))
+        print ('[+] {} MPS modules are used.'.format (self.MPS_iter))
         self.mps_list = nn.ModuleList ([factor_updating_structure (opts) for i in range (self.MPS_iter)])
 
         # self.mps_list.apply (network.weight_init_fun_kaiming)

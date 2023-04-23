@@ -12,6 +12,7 @@ run()
         mkdir -p docker/${name}
         #cp -r dataset docker/${name}/
         cp -r models docker/${name}/
+        cp -r info4/log docker/${name}/
         cp -r info4/dataset docker/${name}/
         cp -r info4/images docker/${name}/
         cp -r info4/output docker/${name}/

@@ -3,10 +3,12 @@ logs:
     model_name: msdn
 data:
     dataset: nia
+    nick: nia
     opts: options/data.yaml
     dataset_option: normal # (small | normal | fat)
     batch_size: 1
     use_region: False
+    result: dataset/result.json
 model:
     arch: FN_v4
     rpn_opts: options/RPN/rpn.yaml
