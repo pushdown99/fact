@@ -204,6 +204,12 @@ def train (train_loader, target_net, optimizer, epoch):
   end = time.time ()
 
   for i, sample in enumerate (train_loader):
+    # hyhwang
+    #print ('#####################################')
+    #print (sample)
+    #if sample == None:
+    #  print ('continue')
+    #  continue
     # measure the data loading time
     data_time.update (time.time () - end)
 

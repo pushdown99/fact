@@ -123,6 +123,11 @@ class nia (data.Dataset):
 
     target_scale = self.opts[self.cfg_key]['SCALES'][npr.randint (0, high=len (self.opts[self.cfg_key]['SCALES']))]
     img = cv2.imread (osp.join (self._data_path, self.annotations[index]['path']))
+    #
+    # hyhwang
+    #
+    #print (osp.join (self._data_path, self.annotations[index]['path']))
+
     img_original_shape = img.shape
     item['path']= self.annotations[index]['path']
     img, im_scale = self._image_resize (img, target_scale, self.opts[self.cfg_key]['MAX_SIZE'])
@@ -141,6 +146,11 @@ class nia (data.Dataset):
     #   item['visual'] = F.pad (item['visual'], (0, pad_w, 0, pad_h)).data
 
     _annotation = self.annotations[index]
+    # hyhwang
+    #print (json.dumps(_annotation, indent=2, ensure_ascii=False))
+    #if len (_annotation['relationships']) <= 0:
+    #  return None
+
     objects_len = len (_annotation['objects'])
     gt_boxes_object = np.zeros (shape=(objects_len, 5))
     #gt_boxes_object = np.zeros (shape=(len (_annotation['objects']), 5))
@@ -150,8 +160,8 @@ class nia (data.Dataset):
 
     y = np.array ([obj['box']   for obj in _annotation['objects']], dtype=np.float) * im_scale
     #print (y.shape)
-    if y.shape[0] == 0:
-      print (index, item['path'], type(gt_boxes_object), np.shape(gt_boxes_object), im_scale)
+    #if y.shape[0] == 0:
+    #  print (index, item['path'], type(gt_boxes_object), np.shape(gt_boxes_object), im_scale)
 
 
     gt_boxes_object[:, :4] = y[:, :4]
@@ -191,6 +201,7 @@ class nia (data.Dataset):
 
   @staticmethod
   def collate (items):
+    # hyhwang
     #print ('[+] nia_loader collate called # {}'.format (items))
     batch_item = {}
     for key in items[0]:

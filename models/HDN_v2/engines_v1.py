@@ -278,17 +278,21 @@ def test (loader, model, top_Ns, nms=-1., triplet_nms=-1., use_gt_boxes=False, o
               statistics [c]['phrase_cnt_correct'] = [0, 0]
               statistics [c]['rel_cnt_correct']    = [0, 0] 
 
-            statistics [c]['rel_cnt'][idx] += rel_cnt
-            statistics [c]['pred_cnt_correct'][idx]    +=  pred_cnt_correct [idx]
-            statistics [c]['phrase_cnt_correct'][idx]  +=  phrase_cnt_correct [idx]
-            statistics [c]['rel_cnt_correct'][idx]     +=  rel_cnt_correct [idx]
+            #statistics [c]['rel_cnt'][idx]             += rel_cnt
+            #statistics [c]['pred_cnt_correct'][idx]    += pred_cnt_correct [idx]
+            #statistics [c]['phrase_cnt_correct'][idx]  += phrase_cnt_correct [idx]
+            #statistics [c]['rel_cnt_correct'][idx]     += rel_cnt_correct [idx]
+            statistics [c]['rel_cnt'][idx]             += total_cnt_t
+            statistics [c]['pred_cnt_correct'][idx]    += cnt_correct_t[2][idx]
+            statistics [c]['phrase_cnt_correct'][idx]  += cnt_correct_t[1][idx]
+            statistics [c]['rel_cnt_correct'][idx]     += cnt_correct_t[0][idx]
 
         batch_time.update (time.time () - end)
         end = time.time ()
 
         # hyhwang
-        if (i + 1) % 15 == 0 and i > 0:
-            print_sg (top_Ns, rel_cnt, pred_cnt_correct, phrase_cnt_correct, rel_cnt_correct, True, image_name)
+#        if (i + 1) % 15 == 0 and i > 0:
+        print_sg (top_Ns, total_cnt_t, cnt_correct_t[2], cnt_correct_t[1], cnt_correct_t[0], True, image_name)
 #            print (current(), '{:20s} {:7s} {:7s} {:7s} {:7s} {:7s}  {:7s}  {:7s}     {}'.format('Recall (Top-N)', 'RelCnt', 'PredCnt', 'PhrCnt', 'SGCnt', 'PredCls', 'PhrCls', 'SGCls', 'Using latest image'))
 #            print (current(), line1_120())
 #            for idx, top_N in enumerate (top_Ns):
